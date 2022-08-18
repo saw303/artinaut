@@ -1,0 +1,6 @@
+applicationType: default
+defaultPackage: io.wangler
+testFramework: spock
+sourceLanguage: java
+buildTool: gradle
+features: [annotation-api, app-name, asciidoctor, flyway, gradle, hibernate-jpa, http-client, jackson-databind, java, java-application, jdbc-hikari, logback, lombok, mariadb, micronaut-build, netty-server, readme, shade, spock, test-resources, yaml]

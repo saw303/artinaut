@@ -1,0 +1,26 @@
+micronaut:
+  application:
+    name: artinaut
+datasources:
+  default:
+    url: "jdbc:${DB_TYPE:mariadb}://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:artinaut}"
+    driverClassName: org.mariadb.jdbc.Driver
+    username: "${DB_USER:artinaut}"
+    password: "${DB_PWD:secret}"
+jpa:
+  default:
+    entity-scan:
+      packages: 'io.wangler.artinaut.domain'
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: validate
+        show_sql: false
+        dialect: io.wangler.artinaut.domain.hibernate.MariaDB107Dialect
+        physical_naming_strategy: io.wangler.artinaut.domain.hibernate.JpaPhysicalNamingStrategy
+        implicit_naming_strategy: io.wangler.artinaut.domain.hibernate.JpaImplicitNamingStrategy
+netty:
+  default:
+    allocator:
+      max-order: 3
+jpa.default.properties.hibernate.hbm2ddl.auto: none
