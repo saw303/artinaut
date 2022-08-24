@@ -14,7 +14,6 @@ class GeneralRepositoryControllerSpec extends MicronautDatabaseSpecification {
     @Inject
     GeneralRepositoryClient generalRepositoryClient
 
-
     void "List all registered repositories"() {
         when:
         List<GeneralRepositoryController.GeneralRepositoryGetModel> repositories = generalRepositoryClient.findAllRepositories()
