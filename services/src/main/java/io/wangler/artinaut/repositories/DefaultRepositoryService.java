@@ -24,6 +24,7 @@
 package io.wangler.artinaut.repositories;
 
 import io.micronaut.transaction.annotation.ReadOnly;
+import io.wangler.artinaut.LocalRepository;
 import io.wangler.artinaut.RemoteRepository;
 import io.wangler.artinaut.RepositoryRepository;
 import jakarta.inject.Singleton;
@@ -55,8 +56,17 @@ public class DefaultRepositoryService implements RepositoryService {
 
   @Override
   @Transactional
-  public RepositoryDto createRemoteRepository(RemoteRepositoryDto remoteRepository) {
+  public RemoteRepositoryDto createRemoteRepository(RemoteRepositoryDto remoteRepository) {
     RemoteRepository repository = repositoryServiceMapper.fromRemoteRepository(remoteRepository);
+    repositoryRepository.save(repository);
+
+    return repositoryServiceMapper.toRepositoryDto(repository);
+  }
+
+  @Override
+  @Transactional
+  public LocalRepositoryDto createLocalRepository(LocalRepositoryDto localRepositoryDto) {
+    LocalRepository repository = repositoryServiceMapper.fromlocalRepositoryDto(localRepositoryDto);
     repositoryRepository.save(repository);
 
     return repositoryServiceMapper.toRepositoryDto(repository);

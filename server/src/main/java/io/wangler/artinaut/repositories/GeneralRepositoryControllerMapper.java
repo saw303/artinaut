@@ -69,4 +69,7 @@ public interface GeneralRepositoryControllerMapper {
   @Mapping(target = "id", ignore = true)
   RemoteRepositoryDto fromRemoteRepositoryPostModel(
       GeneralRepositoryController.RemoteRepositoryPostModel model);
+
+  LocalRepositoryDto fromLocalRepositoryPostModel(
+      GeneralRepositoryController.LocalRepositoryPostModel model);
 }

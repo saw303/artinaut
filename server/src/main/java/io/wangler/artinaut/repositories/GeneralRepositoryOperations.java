@@ -54,4 +54,8 @@ public interface GeneralRepositoryOperations {
   @Post("/remote/")
   HttpResponse addRemoteRepo(
       @Body @Valid GeneralRepositoryController.RemoteRepositoryPostModel model);
+
+  @Post("/local/")
+  HttpResponse addLocalRepo(
+      @Body @Valid GeneralRepositoryController.LocalRepositoryPostModel model);
 }

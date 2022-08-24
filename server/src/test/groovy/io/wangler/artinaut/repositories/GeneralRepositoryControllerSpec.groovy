@@ -84,6 +84,44 @@ class GeneralRepositoryControllerSpec extends MicronautDatabaseSpecification {
         noExceptionThrown()
 
         and:
-        repo.id()
+        with(repo) {
+            id() == repoId
+            key() == myRepo.key()
+            url() == myRepo.url()
+            path() == myRepo.path()
+            username() == myRepo.username()
+            password() == myRepo.password()
+            handleSnapshots() == myRepo.handleSnapshots()
+            handleReleases() == myRepo.handleReleases()
+            storeArtifactsLocally() == myRepo.storeArtifactsLocally()
+        }
+    }
+
+    void "Create a local repository"() {
+
+        given:
+        GeneralRepositoryController.LocalRepositoryPostModel myRepo = new GeneralRepositoryController.LocalRepositoryPostModel(
+                null, 'test-my-repo', FALSE, TRUE
+        )
+
+        when:
+        HttpResponse<UUID> res = generalRepositoryClient.addLocalRepo(myRepo)
+
+        and:
+        UUID repoId = res.getBody(UUID).get()
+
+        and:
+        GeneralRepositoryController.LocalRepositoryGetModel repo = generalRepositoryClient.findLocalRepo(repoId)
+
+        then:
+        noExceptionThrown()
+
+        and:
+        with(repo) {
+            id() == repoId
+            key() == myRepo.key()
+            handleSnapshots() == myRepo.handleSnapshots()
+            handleReleases() == myRepo.handleReleases()
+        }
     }
 }

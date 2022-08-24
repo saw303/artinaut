@@ -32,5 +32,7 @@ public interface RepositoryService {
 
   Optional<RepositoryDto> findRepository(UUID repoId);
 
-  RepositoryDto createRemoteRepository(RemoteRepositoryDto remoteRepository);
+  RemoteRepositoryDto createRemoteRepository(RemoteRepositoryDto remoteRepository);
+
+  LocalRepositoryDto createLocalRepository(LocalRepositoryDto fromLocalRepositoryPostModel);
 }

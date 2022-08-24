@@ -32,6 +32,8 @@ import java.net.URL;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.StreamSupport;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -90,14 +92,24 @@ public class GeneralRepositoryController implements GeneralRepositoryOperations 
     return HttpResponse.created(remoteRepository.getId());
   }
 
-  @Introspected
-  public record GeneralRepositoryGetModel(UUID id, String key, String type) {}
+  @Override
+  public HttpResponse addLocalRepo(LocalRepositoryPostModel model) {
+    RepositoryDto remoteRepository =
+        repositoryService.createLocalRepository(mapper.fromLocalRepositoryPostModel(model));
+    return HttpResponse.created(remoteRepository.getId());
+  }
 
   @Introspected
-  public record LocalRepositoryGetModel(UUID id, String key, String type) {}
+  public record GeneralRepositoryGetModel(
+      UUID id, String key, String type, Boolean handleReleases, Boolean handleSnapshots) {}
 
   @Introspected
-  public record VirtualRepositoryGetModel(UUID id, String key, String type) {}
+  public record LocalRepositoryGetModel(
+      UUID id, String key, String type, Boolean handleReleases, Boolean handleSnapshots) {}
+
+  @Introspected
+  public record VirtualRepositoryGetModel(
+      UUID id, String key, String type, Boolean handleReleases, Boolean handleSnapshots) {}
 
   @Introspected
   public record RemoteRepositoryGetModel(
@@ -115,12 +127,19 @@ public class GeneralRepositoryController implements GeneralRepositoryOperations 
   @Introspected
   public record RemoteRepositoryPostModel(
       UUID id,
-      String key,
-      URL url,
-      String path,
+      @NotBlank String key,
+      @NotNull URL url,
+      @NotBlank String path,
       String username,
       String password,
-      Boolean handleReleases,
-      Boolean handleSnapshots,
-      Boolean storeArtifactsLocally) {}
+      @NotNull Boolean handleReleases,
+      @NotNull Boolean handleSnapshots,
+      @NotNull Boolean storeArtifactsLocally) {}
+
+  @Introspected
+  public record LocalRepositoryPostModel(
+      UUID id,
+      @NotBlank String key,
+      @NotNull Boolean handleReleases,
+      @NotNull Boolean handleSnapshots) {}
 }

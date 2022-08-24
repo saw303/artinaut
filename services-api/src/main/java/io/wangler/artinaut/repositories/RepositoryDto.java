@@ -31,4 +31,6 @@ public abstract class RepositoryDto {
 
   private UUID id;
   private String key;
+  private boolean handleReleases;
+  private boolean handleSnapshots;
 }

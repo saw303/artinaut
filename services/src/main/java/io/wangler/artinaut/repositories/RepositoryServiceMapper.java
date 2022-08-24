@@ -56,4 +56,8 @@ public interface RepositoryServiceMapper {
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "version", ignore = true)
   RemoteRepository fromRemoteRepository(RemoteRepositoryDto remoteRepository);
+
+  @Mapping(target = "id", ignore = true)
+  @Mapping(target = "version", ignore = true)
+  LocalRepository fromlocalRepositoryDto(LocalRepositoryDto localRepository);
 }

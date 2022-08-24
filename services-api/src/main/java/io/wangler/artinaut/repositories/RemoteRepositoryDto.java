@@ -36,7 +36,5 @@ public class RemoteRepositoryDto extends RepositoryDto {
   private String path;
   private String username;
   private String password;
-  private Boolean handleReleases;
-  private Boolean handleSnapshots;
   private Boolean storeArtifactsLocally;
 }
