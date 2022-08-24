@@ -1,0 +1,22 @@
+version: "3.9"
+services:
+  database:
+    image: mariadb:10.8.3-jammy
+    environment:
+      MYSQL_ROOT_PASSWORD: root_secret
+      MYSQL_DATABASE: artinaut
+      MYSQL_USER: artinaut
+      MYSQL_PASSWORD: secret
+      TZ: "Europe/Zurich"
+      MARIADB_AUTO_UPGRADE: "true"
+    tmpfs:
+      - /var/lib/mysql:rw
+    ports:
+      - "127.0.0.1:3306:3306"
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 200M
+
+

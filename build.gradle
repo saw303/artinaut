@@ -1,54 +1,54 @@
 plugins {
-    id("groovy")
-    id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("io.micronaut.application") version "3.5.1"
-    id 'ch.onstructive.gradle.java' version "${onstructiveGradlePluginVersion}"
-    id 'ch.onstructive.gradle.release' version "${onstructiveGradlePluginVersion}"
-    id 'ch.onstructive.gradle.codestyle' version "${onstructiveGradlePluginVersion}"
-    id 'ch.onstructive.gradle.hbm2ddl' version "${onstructiveGradlePluginVersion}"
+    id "com.github.johnrengelman.shadow" version "7.1.2" apply false
+    id "io.micronaut.application" version "${micronautGradlePluginVersion}" apply false
+    id "io.micronaut.library" version "${micronautGradlePluginVersion}" apply false
+    id 'ch.onstructive.gradle.java' version "${onstructiveGradlePluginVersion}" apply false
+    id 'ch.onstructive.gradle.release' version "${onstructiveGradlePluginVersion}" apply false
+    id 'ch.onstructive.gradle.codestyle' version "${onstructiveGradlePluginVersion}" apply false
+    id 'ch.onstructive.gradle.hbm2ddl' version "${onstructiveGradlePluginVersion}" apply false
 }
 
-version = "0.1"
-group = "io.wangler"
+subprojects { subproject ->
 
-repositories {
-    mavenCentral()
-}
+    apply plugin: 'ch.onstructive.gradle.java'
+    apply plugin: 'ch.onstructive.gradle.release'
+    apply plugin: 'ch.onstructive.gradle.codestyle'
 
-dependencies {
-    annotationProcessor("org.projectlombok:lombok")
-    annotationProcessor("io.micronaut:micronaut-http-validation")
-    implementation("io.micronaut:micronaut-http-client")
-    implementation("io.micronaut:micronaut-jackson-databind")
-    implementation("io.micronaut.flyway:micronaut-flyway")
-    implementation("io.micronaut.sql:micronaut-hibernate-jpa")
-    implementation("io.micronaut.sql:micronaut-jdbc-hikari")
-    implementation("jakarta.annotation:jakarta.annotation-api")
-    compileOnly("org.projectlombok:lombok")
-    runtimeOnly("ch.qos.logback:logback-classic")
-    runtimeOnly("org.flywaydb:flyway-mysql")
-    runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
-    implementation("io.micronaut:micronaut-validation")
-}
+    group = "io.wangler.artinaut"
 
+    java {
+        sourceCompatibility = JavaVersion.toVersion("17")
+        targetCompatibility = JavaVersion.toVersion("17")
+    }
 
-application {
-    mainClass.set("io.wangler.artinaut.Application")
-}
-java {
-    sourceCompatibility = JavaVersion.toVersion("17")
-    targetCompatibility = JavaVersion.toVersion("17")
-}
+    if (subproject.name == "${rootProject.name}-server") {
+        apply plugin: 'io.micronaut.application'
+    } else {
+        apply plugin: 'io.micronaut.library'
+    }
 
-graalvmNative.toolchainDetection = false
-micronaut {
-    runtime("netty")
-    testRuntime("spock2")
-    processing {
-        incremental(true)
-        annotations("io.wangler.artinaut.*")
+    micronaut {
+        runtime("netty")
+        testRuntime("spock2")
+        processing {
+            incremental(true)
+            annotations("io.wangler.artinaut.*")
+        }
+    }
+
+    dependencies {
+        annotationProcessor("org.projectlombok:lombok")
+        annotationProcessor("io.micronaut:micronaut-http-validation")
+        annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+        implementation("io.micronaut:micronaut-http-client")
+        implementation("io.micronaut:micronaut-jackson-databind")
+
+        implementation("jakarta.annotation:jakarta.annotation-api")
+        compileOnly("org.projectlombok:lombok")
+        implementation("io.micronaut:micronaut-validation")
+
+        implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+        implementation "ch.onstructive.commons:onstructive-commons-java-commons:${onstructiveCommons}"
+        implementation "ch.onstructive.commons:onstructive-commons-micronaut-commons:${onstructiveCommons}"
     }
 }
-
-
-

@@ -1,0 +1,7 @@
+dependencies {
+    api project(":${rootProject.name}-services-api")
+    implementation project(":${rootProject.name}-domain")
+
+    annotationProcessor("io.micronaut.data:micronaut-data-processor")
+    implementation("io.micronaut.data:micronaut-data-hibernate-jpa")
+}

@@ -28,4 +28,9 @@ dependencyResolutionManagement {
 }
 
 rootProject.name="artinaut"
+include 'domain'
+include 'services'
+include 'services-api'
+include 'server'
 
+rootProject.children.each { it.name = "${rootProject.name}-${it.name}" }

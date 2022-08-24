@@ -1,0 +1,62 @@
+/*
+ * MIT License
+ * <p>
+ * Copyright (c) 2022 Silvio Wangler (silvio@wangler.io)
+ * <p>
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * <p>
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * <p>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE
+ */
+package io.wangler.artinaut.artifactresolvers;
+
+import ch.onstructive.mapping.mapstruct.MicronautMappingConfig;
+import io.micronaut.http.MediaType;
+import io.wangler.artinaut.Artifact;
+import io.wangler.artinaut.ArtifactContextDto;
+import io.wangler.artinaut.Repository;
+import java.util.UUID;
+import org.mapstruct.AfterMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+
+@Mapper(
+    config = MicronautMappingConfig.class,
+    imports = {UUID.class})
+public interface ArtifactMapper {
+
+  @Mapping(target = "id", ignore = true)
+  @Mapping(target = "version", ignore = true)
+  @Mapping(target = "groupId", expression = "java( context.toMavenizedGroupId() )")
+  @Mapping(target = "artifactVersion", source = "context.version")
+  @Mapping(target = "type", expression = "java( context.toType() )")
+  @Mapping(target = "repositories", ignore = true) // after mapped
+  Artifact toArtifact(ArtifactContextDto context, MediaType mediaType, Repository repository);
+
+  @AfterMapping
+  default void addRepository(
+      @MappingTarget Artifact artifact,
+      ArtifactContextDto context,
+      MediaType mediaType,
+      Repository repository) {
+    artifact.getRepositories().add(repository);
+  }
+
+  default String fromMediaType(MediaType mediaType) {
+    return mediaType.toString();
+  }
+}

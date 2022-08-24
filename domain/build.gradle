@@ -1,0 +1,12 @@
+apply plugin: 'ch.onstructive.gradle.hbm2ddl'
+
+dependencies {
+    annotationProcessor("io.micronaut.data:micronaut-data-processor")
+    implementation("io.micronaut.data:micronaut-data-hibernate-jpa")
+}
+
+ddl {
+    dialects = [
+            'MARIA107CUSTOM': 'io.wangler.artinaut.hibernate.MariaDB107Dialect'
+    ]
+}

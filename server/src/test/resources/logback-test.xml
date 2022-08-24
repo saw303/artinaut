@@ -1,0 +1,24 @@
+<configuration>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <withJansi>true</withJansi>
+        <!-- encoders are assigned the type
+             ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+        <encoder>
+            <pattern>%cyan(%d{HH:mm:ss.SSS}) %gray([%thread]) %highlight(%-5level) %magenta(%logger{36}) - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="io.micronaut.http.server.netty.RoutingInBoundHandler" level="DEBUG"/>
+    <logger name="io.micronaut.http.client" level="DEBUG"/>
+    <logger name="io.micronaut.web.router.RouteMatchUtils" level="DEBUG"/>
+    <logger name="io.micronaut.context.event.ApplicationEventPublisher" level="DEBUG"/>
+    <logger name="org.flywaydb" level="INFO"/>
+    <logger name="io.wangler.artinaut" level="DEBUG"/>
+    <!--<logger name="org.hibernate.SQL" level="DEBUG"/>
+    <logger name="org.hibernate.type" level="TRACE"/>-->
+
+    <root level="ERROR">
+        <appender-ref ref="STDOUT" />
+    </root>
+</configuration>
