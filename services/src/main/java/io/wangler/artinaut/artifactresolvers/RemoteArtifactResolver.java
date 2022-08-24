@@ -30,7 +30,6 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 import ch.onstructive.exceptions.NotFoundException;
 import io.micronaut.http.HttpResponse;
-import io.micronaut.http.MediaType;
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.uri.UriBuilder;
 import io.wangler.artinaut.Artifact;
@@ -50,19 +49,31 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 import javax.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Singleton
 @Slf4j
-@RequiredArgsConstructor
-public class RemoteArtifactResolver implements ArtifactResolver {
+public class RemoteArtifactResolver extends BaseArtifactResolver implements ArtifactResolver {
 
   private final RemoteRepositoryRepository remoteRepositoryRepository;
   private final FileStoreConfig fileStoreConfig;
   private final ArtifactMapper artifactMapper;
   private final ArtifactRepository artifactRepository;
+
+  public RemoteArtifactResolver(
+      ArtifactRepository artifactRepository,
+      FileStoreConfig fileStoreConfig,
+      RemoteRepositoryRepository remoteRepositoryRepository,
+      FileStoreConfig fileStoreConfig1,
+      ArtifactMapper artifactMapper,
+      ArtifactRepository artifactRepository1) {
+    super(artifactRepository, fileStoreConfig);
+    this.remoteRepositoryRepository = remoteRepositoryRepository;
+    this.fileStoreConfig = fileStoreConfig1;
+    this.artifactMapper = artifactMapper;
+    this.artifactRepository = artifactRepository1;
+  }
 
   @Override
   public boolean supports(Repository repository) {
@@ -79,31 +90,10 @@ public class RemoteArtifactResolver implements ArtifactResolver {
             .findByKey(context.repositoryKey())
             .orElseThrow(() -> new NotFoundException("repository", context.repositoryKey()));
 
-    Optional<Artifact> potentialCachedArtefact =
-        artifactRepository.findByGroupIdAndArtifactIdAndArtifactVersionAndTypeAndRepository(
-            context.toMavenizedGroupId(),
-            context.artifactId(),
-            context.version(),
-            context.toType(),
-            repository);
+    Optional<ArtifactDto> artifactDto = resolveArtifactLocally(context, repository);
 
-    // serve cached artifact
-    if (potentialCachedArtefact.isPresent()) {
-      Artifact artifact = potentialCachedArtefact.get();
-      log.info("Found cached artifact «{}» in repo «{}»", artifact, repository.getKey());
-
-      Path path = fileStoreConfig.getPath().resolve(artifact.getId().toString());
-
-      if (Files.exists(path)) {
-        log.debug("Returning file «{}»", path);
-        return new ArtifactDto(MediaType.of(artifact.getMediaType()), Files.newInputStream(path));
-      } else {
-        log.error(
-            "Cached artifact «{}» does not exists in repo «{}» but is registered in database",
-            artifact,
-            repository.getKey());
-        throw new NotFoundException("artifact", artifact.getId());
-      }
+    if (artifactDto.isPresent()) {
+      return artifactDto.get();
     }
 
     // request the artifact from remote repo

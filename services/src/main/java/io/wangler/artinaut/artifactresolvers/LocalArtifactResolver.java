@@ -23,15 +23,29 @@
  */
 package io.wangler.artinaut.artifactresolvers;
 
-import ch.onstructive.exceptions.NotYetImplementedException;
+import ch.onstructive.exceptions.NotFoundException;
 import io.wangler.artinaut.ArtifactContextDto;
 import io.wangler.artinaut.ArtifactDto;
+import io.wangler.artinaut.ArtifactRepository;
 import io.wangler.artinaut.LocalRepository;
+import io.wangler.artinaut.LocalRepositoryRepository;
 import io.wangler.artinaut.Repository;
+import io.wangler.artinaut.config.FileStoreConfig;
 import jakarta.inject.Singleton;
 
 @Singleton
-public class LocalArtifactResolver implements ArtifactResolver {
+public class LocalArtifactResolver extends BaseArtifactResolver implements ArtifactResolver {
+
+  private final LocalRepositoryRepository localRepositoryRepository;
+
+  public LocalArtifactResolver(
+      ArtifactRepository artifactRepository,
+      FileStoreConfig fileStoreConfig,
+      LocalRepositoryRepository localRepositoryRepository) {
+    super(artifactRepository, fileStoreConfig);
+    this.localRepositoryRepository = localRepositoryRepository;
+  }
+
   @Override
   public boolean supports(Repository repository) {
     return repository instanceof LocalRepository;
@@ -39,6 +53,12 @@ public class LocalArtifactResolver implements ArtifactResolver {
 
   @Override
   public ArtifactDto resolveArtifact(ArtifactContextDto context) {
-    throw new NotYetImplementedException();
+    LocalRepository repository =
+        localRepositoryRepository
+            .findByKey(context.repositoryKey())
+            .orElseThrow(() -> new NotFoundException("repository", context.repositoryKey()));
+
+    return resolveArtifactLocally(context, repository)
+        .orElseThrow(() -> new NotFoundException("artifact", context.artifactId()));
   }
 }

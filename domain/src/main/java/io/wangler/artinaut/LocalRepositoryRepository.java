@@ -23,36 +23,12 @@
  */
 package io.wangler.artinaut;
 
-import io.micronaut.data.annotation.Query;
 import io.micronaut.data.annotation.Repository;
-import io.micronaut.data.jpa.repository.JpaRepository;
+import io.micronaut.data.repository.CrudRepository;
 import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface ArtifactRepository extends JpaRepository<Artifact, UUID> {
-
-  Optional<Artifact> findByGroupIdAndArtifactIdAndArtifactVersionAndType(
-      String groupId, String artifactId, String version, String type);
-
-  boolean existsByGroupIdAndArtifactIdAndArtifactVersionAndType(
-      String groupId, String artifactId, String version, String type);
-
-  @Query(
-      """
-    select a
-    from Artifact a, Repository r
-    where a.groupId = :groupId
-    and a.artifactId = :artifactId
-    and a.artifactVersion = :version
-    and a.type = :type
-    and r in elements(a.repositories)
-    and r = :repository
-    """)
-  Optional<Artifact> findByGroupIdAndArtifactIdAndArtifactVersionAndTypeAndRepository(
-      String groupId,
-      String artifactId,
-      String version,
-      String type,
-      io.wangler.artinaut.Repository repository);
+public interface LocalRepositoryRepository extends CrudRepository<LocalRepository, UUID> {
+  Optional<LocalRepository> findByKey(String key);
 }
