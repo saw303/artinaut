@@ -5,6 +5,9 @@ dependencies {
 
     implementation project(":${rootProject.name}-domain")
     implementation project(":${rootProject.name}-services")
+    implementation "ch.onstructive.commons:onstructive-commons-micronaut-commons:${onstructiveCommons}"
+    implementation "ch.onstructive.commons:onstructive-commons-micronaut-jackson-commons:${onstructiveCommons}"
+    implementation "ch.onstructive.commons:onstructive-commons-micronaut-rest-commons:${onstructiveCommons}"
 
     implementation("io.micronaut.flyway:micronaut-flyway")
     implementation("io.micronaut.sql:micronaut-jdbc-hikari")
@@ -18,6 +21,7 @@ dependencies {
     testImplementation("com.squareup.okhttp3:mockwebserver:4.10.0")
 
     testImplementation("io.micronaut.data:micronaut-data-hibernate-jpa")
+    testImplementation "ch.onstructive.commons:onstructive-commons-micronaut-test:${onstructiveCommons}"
 }
 
 graalvmNative.toolchainDetection = false

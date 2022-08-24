@@ -21,34 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE
  */
-package io.wangler.artinaut;
+package io.wangler.artinaut.repositories;
 
-import io.micronaut.data.annotation.Query;
-import io.micronaut.data.annotation.Repository;
-import io.micronaut.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
-public interface ArtifactRepository extends JpaRepository<Artifact, UUID> {
+public interface RepositoryService {
 
-  Optional<Artifact> findByGroupIdAndArtifactIdAndArtifactVersionAndType(
-      String groupId, String artifactId, String version, String type);
+  Iterable<RepositoryDto> findAllRepositories();
 
-  boolean existsByGroupIdAndArtifactIdAndArtifactVersionAndType(
-      String groupId, String artifactId, String version, String type);
+  Optional<RepositoryDto> findRepository(UUID repoId);
 
-  @Query(
-      """
-    select a
-    from Artifact a, Repository r
-    where a.groupId = :groupId
-    and a.artifactId = :artifactId
-    and a.artifactVersion = :version
-    and a.type = :type
-    and r in elements(a.repositories)
-    and r = :repository
-    """)
-  Optional<Artifact> findByGroupIdAndArtifactIdAndArtifactVersionAndTypeAndRepository(
-      String groupId, String artifactId, String version, String type, RemoteRepository repository);
+  RepositoryDto createRemoteRepository(RemoteRepositoryDto remoteRepository);
 }

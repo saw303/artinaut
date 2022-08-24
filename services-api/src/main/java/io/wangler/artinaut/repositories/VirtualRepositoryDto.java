@@ -21,34 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE
  */
-package io.wangler.artinaut;
+package io.wangler.artinaut.repositories;
 
-import io.micronaut.data.annotation.Query;
-import io.micronaut.data.annotation.Repository;
-import io.micronaut.data.jpa.repository.JpaRepository;
-import java.util.Optional;
-import java.util.UUID;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-@Repository
-public interface ArtifactRepository extends JpaRepository<Artifact, UUID> {
-
-  Optional<Artifact> findByGroupIdAndArtifactIdAndArtifactVersionAndType(
-      String groupId, String artifactId, String version, String type);
-
-  boolean existsByGroupIdAndArtifactIdAndArtifactVersionAndType(
-      String groupId, String artifactId, String version, String type);
-
-  @Query(
-      """
-    select a
-    from Artifact a, Repository r
-    where a.groupId = :groupId
-    and a.artifactId = :artifactId
-    and a.artifactVersion = :version
-    and a.type = :type
-    and r in elements(a.repositories)
-    and r = :repository
-    """)
-  Optional<Artifact> findByGroupIdAndArtifactIdAndArtifactVersionAndTypeAndRepository(
-      String groupId, String artifactId, String version, String type, RemoteRepository repository);
-}
+@Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+public class VirtualRepositoryDto extends RepositoryDto {}

@@ -80,11 +80,12 @@ public class RemoteArtifactResolver implements ArtifactResolver {
             .orElseThrow(() -> new NotFoundException("repository", context.repositoryKey()));
 
     Optional<Artifact> potentialCachedArtefact =
-        artifactRepository.findByGroupIdAndArtifactIdAndArtifactVersionAndType(
+        artifactRepository.findByGroupIdAndArtifactIdAndArtifactVersionAndTypeAndRepository(
             context.toMavenizedGroupId(),
             context.artifactId(),
             context.version(),
-            context.toType());
+            context.toType(),
+            repository);
 
     // serve cached artifact
     if (potentialCachedArtefact.isPresent()) {

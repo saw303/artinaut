@@ -21,34 +21,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE
  */
-package io.wangler.artinaut;
+package io.wangler.artinaut.repositories;
 
-import io.micronaut.data.annotation.Query;
-import io.micronaut.data.annotation.Repository;
-import io.micronaut.data.jpa.repository.JpaRepository;
-import java.util.Optional;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.annotation.Body;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.PathVariable;
+import io.micronaut.http.annotation.Post;
+import io.micronaut.validation.Validated;
+import java.util.List;
 import java.util.UUID;
+import javax.validation.Valid;
 
-@Repository
-public interface ArtifactRepository extends JpaRepository<Artifact, UUID> {
+@Validated
+public interface GeneralRepositoryOperations {
+  @Get
+  List<GeneralRepositoryController.GeneralRepositoryGetModel> findAllRepositories();
 
-  Optional<Artifact> findByGroupIdAndArtifactIdAndArtifactVersionAndType(
-      String groupId, String artifactId, String version, String type);
+  @Get("/{id}")
+  GeneralRepositoryController.GeneralRepositoryGetModel findRepo(@PathVariable("id") UUID id);
 
-  boolean existsByGroupIdAndArtifactIdAndArtifactVersionAndType(
-      String groupId, String artifactId, String version, String type);
+  @Get("/remote/{id}")
+  GeneralRepositoryController.RemoteRepositoryGetModel findRemoteRepo(@PathVariable("id") UUID id);
 
-  @Query(
-      """
-    select a
-    from Artifact a, Repository r
-    where a.groupId = :groupId
-    and a.artifactId = :artifactId
-    and a.artifactVersion = :version
-    and a.type = :type
-    and r in elements(a.repositories)
-    and r = :repository
-    """)
-  Optional<Artifact> findByGroupIdAndArtifactIdAndArtifactVersionAndTypeAndRepository(
-      String groupId, String artifactId, String version, String type, RemoteRepository repository);
+  @Get("/local/{id}")
+  GeneralRepositoryController.LocalRepositoryGetModel findLocalRepo(@PathVariable("id") UUID id);
+
+  @Get("/virtual/{id}")
+  GeneralRepositoryController.VirtualRepositoryGetModel findVirtualRepo(
+      @PathVariable("id") UUID id);
+
+  @Post("/remote/")
+  HttpResponse addRemoteRepo(
+      @Body @Valid GeneralRepositoryController.RemoteRepositoryPostModel model);
 }
