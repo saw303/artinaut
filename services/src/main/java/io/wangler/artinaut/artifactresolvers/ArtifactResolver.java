@@ -26,9 +26,10 @@ package io.wangler.artinaut.artifactresolvers;
 import io.wangler.artinaut.ArtifactContextDto;
 import io.wangler.artinaut.ArtifactDto;
 import io.wangler.artinaut.Repository;
+import java.util.Optional;
 
 public interface ArtifactResolver {
   boolean supports(Repository repository);
 
-  ArtifactDto resolveArtifact(ArtifactContextDto context);
+  Optional<ArtifactDto> resolveArtifact(ArtifactContextDto context);
 }

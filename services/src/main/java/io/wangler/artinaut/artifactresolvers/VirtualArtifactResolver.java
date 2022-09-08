@@ -26,39 +26,58 @@ package io.wangler.artinaut.artifactresolvers;
 import ch.onstructive.exceptions.NotFoundException;
 import io.wangler.artinaut.ArtifactContextDto;
 import io.wangler.artinaut.ArtifactDto;
-import io.wangler.artinaut.ArtifactRepository;
-import io.wangler.artinaut.LocalRepository;
-import io.wangler.artinaut.LocalRepositoryRepository;
 import io.wangler.artinaut.Repository;
-import io.wangler.artinaut.config.FileStoreConfig;
+import io.wangler.artinaut.VirtualRepository;
+import io.wangler.artinaut.VirtualRepositoryRepository;
+import jakarta.inject.Provider;
 import jakarta.inject.Singleton;
 import java.util.Optional;
+import javax.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Singleton
-public class LocalArtifactResolver extends BaseArtifactResolver implements ArtifactResolver {
+@RequiredArgsConstructor
+@Slf4j
+public class VirtualArtifactResolver implements ArtifactResolver {
 
-  private final LocalRepositoryRepository localRepositoryRepository;
-
-  public LocalArtifactResolver(
-      ArtifactRepository artifactRepository,
-      FileStoreConfig fileStoreConfig,
-      LocalRepositoryRepository localRepositoryRepository) {
-    super(artifactRepository, fileStoreConfig);
-    this.localRepositoryRepository = localRepositoryRepository;
-  }
+  private final VirtualRepositoryRepository virtualRepositoryRepository;
+  private final Provider<ArtifactResolverFactory> artifactResolverFactory;
+  private final VirtualArtifactResolverMapper virtualArtifactResolverMapper;
 
   @Override
   public boolean supports(Repository repository) {
-    return repository instanceof LocalRepository;
+    return repository instanceof VirtualRepository;
   }
 
   @Override
+  @Transactional
   public Optional<ArtifactDto> resolveArtifact(ArtifactContextDto context) {
-    LocalRepository repository =
-        localRepositoryRepository
+
+    VirtualRepository repository =
+        virtualRepositoryRepository
             .findByKey(context.repositoryKey())
             .orElseThrow(() -> new NotFoundException("repository", context.repositoryKey()));
 
-    return resolveArtifactLocally(context, repository);
+    for (Repository delegateRepository : repository.getRepositories()) {
+      log.info("Delegating request to repo '{}'", delegateRepository.getKey());
+      ArtifactResolver artifactResolver =
+          artifactResolverFactory.get().resolveArtifactResolver(delegateRepository);
+      ArtifactContextDto adoptedContext =
+          virtualArtifactResolverMapper.copy(context, delegateRepository.getKey());
+
+      Optional<ArtifactDto> artifactDto = artifactResolver.resolveArtifact(adoptedContext);
+
+      if (artifactDto.isPresent()) {
+        return artifactDto;
+      }
+      log.debug(
+          "Artifact '{}:{}:{}' not found in repo '{}'",
+          adoptedContext.toMavenizedGroupId(),
+          adoptedContext.artifactId(),
+          adoptedContext.version(),
+          delegateRepository.getKey());
+    }
+    return Optional.empty();
   }
 }

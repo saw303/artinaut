@@ -21,29 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE
  */
-package io.wangler.artinaut;
+package io.wangler.artinaut.artifactresolvers;
 
-import java.util.ArrayList;
-import java.util.List;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OrderBy;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import ch.onstructive.mapping.mapstruct.MicronautMappingConfig;
+import io.wangler.artinaut.ArtifactContextDto;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Entity
-@Data
-@EqualsAndHashCode(callSuper = true)
-public class VirtualRepository extends Repository {
-
-  @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-  @JoinTable(
-      name = "virtual_repo_to_repos",
-      joinColumns = {@JoinColumn(name = "virtual_repo_id", nullable = false)},
-      inverseJoinColumns = {@JoinColumn(name = "repo_id", nullable = false)})
-  @OrderBy("key ASC")
-  private List<Repository> repositories = new ArrayList<>();
+@Mapper(config = MicronautMappingConfig.class)
+public interface VirtualArtifactResolverMapper {
+  @Mapping(target = "repositoryKey", source = "key")
+  ArtifactContextDto copy(ArtifactContextDto context, String key);
 }

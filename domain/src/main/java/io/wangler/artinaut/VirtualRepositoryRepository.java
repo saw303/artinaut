@@ -23,27 +23,13 @@
  */
 package io.wangler.artinaut;
 
-import java.util.ArrayList;
-import java.util.List;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OrderBy;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import io.micronaut.data.annotation.Repository;
+import io.micronaut.data.jpa.repository.JpaRepository;
+import java.util.Optional;
+import java.util.UUID;
 
-@Entity
-@Data
-@EqualsAndHashCode(callSuper = true)
-public class VirtualRepository extends Repository {
+@Repository
+public interface VirtualRepositoryRepository extends JpaRepository<VirtualRepository, UUID> {
 
-  @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-  @JoinTable(
-      name = "virtual_repo_to_repos",
-      joinColumns = {@JoinColumn(name = "virtual_repo_id", nullable = false)},
-      inverseJoinColumns = {@JoinColumn(name = "repo_id", nullable = false)})
-  @OrderBy("key ASC")
-  private List<Repository> repositories = new ArrayList<>();
+  Optional<VirtualRepository> findByKey(String key);
 }

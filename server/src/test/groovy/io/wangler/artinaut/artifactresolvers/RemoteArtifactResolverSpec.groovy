@@ -58,14 +58,16 @@ class RemoteArtifactResolverSpec extends Specification {
         server.enqueue(new MockResponse().setBody("123456").setHeader(CONTENT_TYPE, TEXT_XML))
 
         when:
-        ArtifactDto artifact = resolver.resolveArtifact(context)
+        Optional<ArtifactDto> artifact = resolver.resolveArtifact(context)
 
         then:
-        noExceptionThrown()
+        artifact.isPresent()
 
         and:
-        artifact.mediaType() == TEXT_XML_TYPE
-        artifact.inputStream()
+        with(artifact.get()) {
+            mediaType() == TEXT_XML_TYPE
+            inputStream()
+        }
 
         and:
         artifactRepository.count() == 1
@@ -93,11 +95,13 @@ class RemoteArtifactResolverSpec extends Specification {
         artifact = resolver.resolveArtifact(context)
 
         then:
-        noExceptionThrown()
+        artifact.isPresent()
 
         and:
-        artifact.mediaType() == APPLICATION_OCTET_STREAM_TYPE
-        artifact.inputStream()
+        with(artifact.get()) {
+            mediaType() == APPLICATION_OCTET_STREAM_TYPE
+            inputStream()
+        }
 
         and:
         artifactRepository.count() == 2

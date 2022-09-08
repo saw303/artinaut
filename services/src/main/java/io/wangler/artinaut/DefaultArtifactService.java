@@ -23,6 +23,7 @@
  */
 package io.wangler.artinaut;
 
+import ch.onstructive.exceptions.NotFoundException;
 import io.wangler.artinaut.artifactresolvers.ArtifactResolver;
 import io.wangler.artinaut.artifactresolvers.ArtifactResolverFactory;
 import jakarta.inject.Singleton;
@@ -47,6 +48,8 @@ public class DefaultArtifactService implements ArtifactService {
 
     ArtifactResolver resolver = artifactResolverFactory.resolveArtifactResolver(repository);
 
-    return resolver.resolveArtifact(context);
+    return resolver
+        .resolveArtifact(context)
+        .orElseThrow(() -> new NotFoundException("artifact", context.toString()));
   }
 }

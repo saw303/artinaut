@@ -29,8 +29,13 @@ import static io.micronaut.http.MediaType.ALL_TYPE;
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 import ch.onstructive.exceptions.NotFoundException;
+import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.HttpResponse;
+import io.micronaut.http.MutableHttpRequest;
+import io.micronaut.http.client.DefaultHttpClientConfiguration;
 import io.micronaut.http.client.HttpClient;
+import io.micronaut.http.client.HttpClientConfiguration;
+import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.http.uri.UriBuilder;
 import io.wangler.artinaut.Artifact;
 import io.wangler.artinaut.ArtifactContextDto;
@@ -44,8 +49,10 @@ import jakarta.inject.Singleton;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Base64;
 import java.util.Map;
 import java.util.Optional;
 import javax.transaction.Transactional;
@@ -60,19 +67,20 @@ public class RemoteArtifactResolver extends BaseArtifactResolver implements Arti
   private final FileStoreConfig fileStoreConfig;
   private final ArtifactMapper artifactMapper;
   private final ArtifactRepository artifactRepository;
+  private final HttpClientConfiguration httpClientConfiguration =
+      new DefaultHttpClientConfiguration();
 
   public RemoteArtifactResolver(
       ArtifactRepository artifactRepository,
       FileStoreConfig fileStoreConfig,
       RemoteRepositoryRepository remoteRepositoryRepository,
-      FileStoreConfig fileStoreConfig1,
-      ArtifactMapper artifactMapper,
-      ArtifactRepository artifactRepository1) {
+      ArtifactMapper artifactMapper) {
     super(artifactRepository, fileStoreConfig);
     this.remoteRepositoryRepository = remoteRepositoryRepository;
-    this.fileStoreConfig = fileStoreConfig1;
+    this.fileStoreConfig = fileStoreConfig;
     this.artifactMapper = artifactMapper;
-    this.artifactRepository = artifactRepository1;
+    this.artifactRepository = artifactRepository;
+    this.httpClientConfiguration.setMaxContentLength(1024 * 1024 * 50); // 50 MiB
   }
 
   @Override
@@ -83,7 +91,7 @@ public class RemoteArtifactResolver extends BaseArtifactResolver implements Arti
   @Override
   @Transactional
   @SneakyThrows({IOException.class})
-  public ArtifactDto resolveArtifact(ArtifactContextDto context) {
+  public Optional<ArtifactDto> resolveArtifact(ArtifactContextDto context) {
 
     RemoteRepository repository =
         remoteRepositoryRepository
@@ -93,13 +101,13 @@ public class RemoteArtifactResolver extends BaseArtifactResolver implements Arti
     Optional<ArtifactDto> artifactDto = resolveArtifactLocally(context, repository);
 
     if (artifactDto.isPresent()) {
-      return artifactDto.get();
+      return artifactDto;
     }
 
     // request the artifact from remote repo
     final URL url = repository.getUrl();
 
-    try (HttpClient httpClient = HttpClient.create(url)) {
+    try (HttpClient httpClient = HttpClient.create(url, this.httpClientConfiguration)) {
       String uri =
           UriBuilder.of("{path}/{groupId}/{artifactId}/{version}/{filename}")
               .expand(
@@ -115,30 +123,57 @@ public class RemoteArtifactResolver extends BaseArtifactResolver implements Arti
                       "filename",
                       context.filename()))
               .toString();
-      HttpResponse<byte[]> exchange = httpClient.toBlocking().exchange(GET(uri), byte[].class);
 
-      if (exchange.getStatus() == OK && exchange.getBody().isPresent()) {
-        log.debug("Found '{}' in repo '{}'", context.filename(), repository.getKey());
+      MutableHttpRequest<Object> request = GET(uri);
 
-        byte[] buffer = exchange.getBody().get();
-        if (repository.isStoreArtifactsLocally()) {
-          Artifact artifact =
-              artifactMapper.toArtifact(context, exchange.getContentType().get(), repository);
+      if (repository.getUsername() != null && repository.getPassword() != null) {
+        String usernamePassword =
+            "%s:%s".formatted(repository.getUsername(), repository.getPassword());
+        request =
+            request.header(
+                HttpHeaders.AUTHORIZATION,
+                "Basic "
+                    + Base64.getEncoder()
+                        .encodeToString(usernamePassword.getBytes(StandardCharsets.UTF_8)));
+      }
 
-          log.debug("About to save artifact: «{}»", artifact);
-          artifact = artifactRepository.save(artifact);
+      try {
+        HttpResponse<byte[]> response = httpClient.toBlocking().exchange(request, byte[].class);
+        if (response.getStatus() == OK && response.getBody().isPresent()) {
+          log.debug("Found '{}' in repo '{}'", context.filename(), repository.getKey());
 
-          Path path = fileStoreConfig.getPath().resolve(artifact.getId().toString());
+          byte[] buffer = response.getBody().get();
+          if (repository.isStoreArtifactsLocally()) {
+            Artifact artifact =
+                artifactMapper.toArtifact(context, response.getContentType().get(), repository);
 
-          if (!Files.exists(path)) {
-            Files.write(path, buffer, CREATE_NEW);
+            log.debug("About to save artifact: «{}»", artifact);
+            artifact = artifactRepository.save(artifact);
+
+            Path path = fileStoreConfig.getPath().resolve(artifact.getId().toString());
+
+            if (!Files.exists(path)) {
+              Files.write(path, buffer, CREATE_NEW);
+            }
           }
+          return Optional.of(
+              new ArtifactDto(
+                  response.getContentType().orElse(ALL_TYPE), new ByteArrayInputStream(buffer)));
+        } else {
+          log.warn(
+              "Did not find '{}' in repo '{}' (http status: {})",
+              context.filename(),
+              repository.getKey(),
+              response.getStatus().getCode());
+          return Optional.empty();
         }
-        return new ArtifactDto(
-            exchange.getContentType().orElse(ALL_TYPE), new ByteArrayInputStream(buffer));
-      } else {
-        log.warn("Did not find '{}' in repo '{}'", context.filename(), repository.getKey());
-        throw new NotFoundException("artifact", context.filename());
+      } catch (HttpClientResponseException e) {
+        log.error(
+            "Failed to fetch '{}' in repo '{}' (http status: {})",
+            context.filename(),
+            repository.getKey(),
+            e.getStatus().getCode());
+        return Optional.empty();
       }
     }
   }
