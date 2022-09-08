@@ -140,7 +140,7 @@ public class RemoteArtifactResolver extends BaseArtifactResolver implements Arti
       try {
         HttpResponse<byte[]> response = httpClient.toBlocking().exchange(request, byte[].class);
         if (response.getStatus() == OK && response.getBody().isPresent()) {
-          log.debug("Found '{}' in repo '{}'", context.filename(), repository.getKey());
+          log.debug("Found «{}» in repo «{}»", context.filename(), repository.getKey());
 
           byte[] buffer = response.getBody().get();
           if (repository.isStoreArtifactsLocally()) {
@@ -161,7 +161,7 @@ public class RemoteArtifactResolver extends BaseArtifactResolver implements Arti
                   response.getContentType().orElse(ALL_TYPE), new ByteArrayInputStream(buffer)));
         } else {
           log.warn(
-              "Did not find '{}' in repo '{}' (http status: {})",
+              "Did not find «{}» in repo «{}» (http status: {})",
               context.filename(),
               repository.getKey(),
               response.getStatus().getCode());
@@ -169,7 +169,7 @@ public class RemoteArtifactResolver extends BaseArtifactResolver implements Arti
         }
       } catch (HttpClientResponseException e) {
         log.error(
-            "Failed to fetch '{}' in repo '{}' (http status: {})",
+            "Failed to fetch «{}» in repo «{}» (http status: {})",
             context.filename(),
             repository.getKey(),
             e.getStatus().getCode());

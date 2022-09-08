@@ -60,7 +60,7 @@ public class VirtualArtifactResolver implements ArtifactResolver {
             .orElseThrow(() -> new NotFoundException("repository", context.repositoryKey()));
 
     for (Repository delegateRepository : repository.getRepositories()) {
-      log.info("Delegating request to repo '{}'", delegateRepository.getKey());
+      log.info("Delegating request to repo «{}»", delegateRepository.getKey());
       ArtifactResolver artifactResolver =
           artifactResolverFactory.get().resolveArtifactResolver(delegateRepository);
       ArtifactContextDto adoptedContext =
@@ -72,7 +72,7 @@ public class VirtualArtifactResolver implements ArtifactResolver {
         return artifactDto;
       }
       log.debug(
-          "Artifact '{}:{}:{}' not found in repo '{}'",
+          "Artifact «{}:{}:{}» not found in repo «{}»",
           adoptedContext.toMavenizedGroupId(),
           adoptedContext.artifactId(),
           adoptedContext.version(),
