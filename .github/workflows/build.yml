@@ -1,0 +1,98 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - 'bugfix/**'
+      - 'dependabot/**'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    env:
+      M2_USER: ${{ secrets.M2_USER }}
+      M2_PWD: ${{ secrets.M2_PWD }}
+
+    services:
+      db:
+        image: mariadb:10.8.3-jammy
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: root_secret
+          MYSQL_DATABASE: artinaut
+          MYSQL_USER: artinaut
+          MYSQL_PASSWORD: secret
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@master
+      with:
+        platforms: linux/amd64,linux/arm64
+
+    - name: Set up Docker Buildx
+      id: buildx
+      uses: docker/setup-buildx-action@master
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: '18'
+        distribution: 'zulu'
+
+    - uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - name: Validate Gradle Wrapper
+      uses: gradle/wrapper-validation-action@v1
+
+    - id: setup
+      name: Setup variables
+      run: |
+        echo "BRANCH_NAME=$(git branch --show-current)" >> $GITHUB_ENV
+
+    - name: Build with Gradle
+      uses: gradle/gradle-build-action@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        arguments: -s check publishToMavenLocal buildLayers dockerfile
+
+    - name: Store test results domain
+      uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: test-report-domain
+        path: ${{ github.workspace }}/domain/build/test-results/test/
+        retention-days: 2
+
+    - name: Store integration test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: integration-test-report
+        path: |
+          ${{ github.workspace }}/server/build/test-results/test/
+          !${{ github.workspace }}/server/build/test-results/test/binary
+        retention-days: 2
+
+    - name: Build multiplatform Docker image
+      uses: docker/build-push-action@v2
+      with:
+        builder: ${{ steps.buildx.outputs.name }}
+        context: ./server/build/docker/main
+        file: ./server/build/docker/main/Dockerfile
+        platforms: linux/amd64,linux/arm64
+        push: false
+        tags: ghcr.io/saw303/artinaut/artinaut:dummynopush
