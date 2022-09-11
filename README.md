@@ -16,9 +16,13 @@ Artinaut aims to solve these major problems and provide a small Java application
 
 ### Release 0.1 🥚 - Build the basics
 
-- Support for remote repositories with caching options (proxy mechanism)
-- Support for local repositories
-- Support for virtual repositories
-- Support for MariaDB 10.3+
+- ✅ Support for proxying remote repositories with caching options
+- ✅ Support for local repositories
+- ✅ Support for virtual repositories (combine a collection of local or remote repositories and expose it as one repository)
+- ✅ Support for MariaDB 10.3+
+
+### Release 0.2 🐣 - Do first steps
+
+- ⏳ Upload artifacts to local repositories
 
 
