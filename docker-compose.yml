@@ -20,7 +20,7 @@ services:
           memory: 200M
 
   artinaut:
-    image: ghcr.io/saw303/artinaut/artinaut:0.1.0
+    image: ghcr.io/saw303/artinaut/artinaut:0.1.2
     environment:
       DB_HOST: database
       DB_NAME: artinaut
@@ -33,7 +33,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "1.0"
+          cpus: "2.0"
           memory: 200M
 
 
