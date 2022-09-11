@@ -23,24 +23,36 @@
  */
 package io.wangler.artinaut;
 
-import io.micronaut.context.ApplicationContext;
+import io.micronaut.context.event.StartupEvent;
 import io.micronaut.runtime.Micronaut;
+import io.micronaut.runtime.event.annotation.EventListener;
 import io.wangler.artinaut.config.ArtinautConfig;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Singleton
 public class Application {
+
+  @Inject private ArtinautConfig config;
+
   public static void main(String[] args) {
-    ApplicationContext applicationContext = Micronaut.run(Application.class, args);
+    Micronaut.run(Application.class, args);
+  }
 
-    ArtinautConfig config = applicationContext.getBean(ArtinautConfig.class);
-
+  @EventListener
+  public void checkTheFileSystem(StartupEvent evt) throws IOException {
     Path fileStore = config.getFileStore().getPath();
     if (!Files.exists(fileStore)) {
-      System.out.println("path does not exist " + fileStore.toAbsolutePath());
-      System.exit(-400);
+      Files.createDirectories(fileStore);
+      if (!Files.exists(fileStore)) {
+        System.out.println("path does not exist " + fileStore.toAbsolutePath());
+        System.exit(-400);
+      }
     }
 
     if (!Files.isDirectory(fileStore)) {

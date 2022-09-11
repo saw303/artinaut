@@ -19,4 +19,21 @@ services:
           cpus: "1.0"
           memory: 200M
 
+  artinaut:
+    image: ghcr.io/saw303/artinaut/artinaut:0.1.0
+    environment:
+      DB_HOST: database
+      DB_NAME: artinaut
+      DB_USER: artinaut
+      DB_PWD: secret
+      ARTINAUT_FILESTORE: /home/app/filestore
+    ports:
+      - "127.0.0.1:8080:8080"
+    restart: on-failure
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 200M
+
 
