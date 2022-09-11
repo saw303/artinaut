@@ -34,4 +34,4 @@ netty:
 
 artinaut:
   file-store:
-    path: /Users/saw/dev/private/artinaut/build
+    path: "${ARTINAUT_FILESTORE:/Users/saw/dev/private/artinaut/build}"

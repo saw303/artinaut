@@ -11,6 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     concurrency: ci-${{ github.ref_name }}
 
+    env:
+      M2_USER: ${{ secrets.M2_USER }}
+      M2_PWD: ${{ secrets.M2_PWD }}
+
     services:
       db:
         image: mariadb:10.8.3-jammy
@@ -52,9 +56,6 @@ jobs:
 
     - name: Prepare
       id: prepare
-      env:
-        M2_USER: ${{ secrets.M2_USER }}
-        M2_PWD: ${{ secrets.M2_PWD }}
       run: |
         git config --local user.name "Build"
         git config --local user.email "github@wangler.io"
@@ -67,8 +68,7 @@ jobs:
     - name: Build with Gradle
       uses: gradle/gradle-build-action@v2
       env:
-        M2_USER: ${{ secrets.M2_USER }}
-        M2_PWD: ${{ secrets.M2_PWD }}
+        ARTINAUT_FILESTORE: ${{ github.workspace }}
       with:
         arguments: -s check publishToMavenLocal buildLayers dockerfile
 

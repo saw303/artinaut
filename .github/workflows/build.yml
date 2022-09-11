@@ -66,6 +66,7 @@ jobs:
       uses: gradle/gradle-build-action@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ARTINAUT_FILESTORE: ${{ github.workspace }}
       with:
         arguments: -s check publishToMavenLocal buildLayers dockerfile
 
