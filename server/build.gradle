@@ -29,3 +29,7 @@ graalvmNative.toolchainDetection = false
 application {
     mainClass.set("io.wangler.artinaut.Application")
 }
+
+tasks.named("dockerfile") {
+    baseImage = "azul/zulu-openjdk-alpine:17-jre-headless"
+}
