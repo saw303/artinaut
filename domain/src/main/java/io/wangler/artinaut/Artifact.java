@@ -54,7 +54,7 @@ public class Artifact extends BaseEntity {
   @Column(nullable = false, length = 50)
   private String artifactVersion;
 
-  @Column(nullable = false, length = 8)
+  @Column(nullable = false, length = 20)
   private String type;
 
   /** E.g. text/xml */

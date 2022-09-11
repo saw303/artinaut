@@ -31,6 +31,6 @@ public record ArtifactContextDto(
   }
 
   public String toType() {
-    return filename.substring(filename.lastIndexOf(".") + 1);
+    return filename.replace(artifactId + "-" + version + ".", "");
   }
 }

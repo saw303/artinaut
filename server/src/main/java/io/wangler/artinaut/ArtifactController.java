@@ -23,12 +23,15 @@
  */
 package io.wangler.artinaut;
 
+import static io.micronaut.scheduling.TaskExecutors.IO;
+
 import ch.onstructive.exceptions.NotFoundException;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.server.types.files.StreamedFile;
+import io.micronaut.scheduling.annotation.ExecuteOn;
 import javax.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +45,8 @@ public class ArtifactController {
   private final ArtifactControllerMapper artifactControllerMapper;
 
   @Get
-  public HttpResponse get(
+  @ExecuteOn(IO)
+  public HttpResponse<?> get(
       @NotBlank @PathVariable("repoKey") String repositoryKey,
       @NotBlank String groupId,
       @NotBlank String artifactId,
@@ -54,10 +58,16 @@ public class ArtifactController {
           artifactService.resolveArtifact(
               artifactControllerMapper.toArtifactContext(
                   repositoryKey, groupId, artifactId, version, filename));
-      return HttpResponse.ok().body(new StreamedFile(artifact.inputStream(), artifact.mediaType()));
-    } catch (RepositoryDoesNotExistException rdnee) {
-      return HttpResponse.notFound("repository does not exist");
-    } catch (NotFoundException nfe) {
+      return HttpResponse.ok()
+          .body(
+              new StreamedFile(
+                  artifact.inputStream(),
+                  artifact.mediaType(),
+                  artifact.lastModified(),
+                  artifact.contentLength()));
+    } catch (RepositoryDoesNotExistException ex) {
+      return HttpResponse.badRequest("repository «" + repositoryKey + "» does not exist");
+    } catch (NotFoundException ex) {
       return HttpResponse.notFound();
     }
   }

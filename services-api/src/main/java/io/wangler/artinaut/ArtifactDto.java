@@ -26,4 +26,5 @@ package io.wangler.artinaut;
 import io.micronaut.http.MediaType;
 import java.io.InputStream;
 
-public record ArtifactDto(MediaType mediaType, InputStream inputStream) {}
+public record ArtifactDto(
+    MediaType mediaType, InputStream inputStream, long lastModified, long contentLength) {}

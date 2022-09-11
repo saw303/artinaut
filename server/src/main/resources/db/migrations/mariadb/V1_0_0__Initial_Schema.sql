@@ -5,7 +5,7 @@ CREATE TABLE artifact (
     artifact_version VARCHAR(50)  NOT NULL,
     group_id         VARCHAR(150) NOT NULL,
     media_type       VARCHAR(100) NOT NULL,
-    type             VARCHAR(8)   NOT NULL,
+    type             VARCHAR(20)   NOT NULL,
     PRIMARY KEY (id)
 )
     ENGINE = InnoDB;
@@ -47,7 +47,8 @@ CREATE TABLE repository (
 CREATE TABLE virtual_repo_to_repos (
     virtual_repo_id UUID NOT NULL,
     repo_id UUID NOT NULL,
-    PRIMARY KEY (virtual_repo_id, repo_id)
+    order_index INTEGER NOT NULL,
+    PRIMARY KEY (virtual_repo_id, order_index)
 )
     ENGINE = InnoDB;
 

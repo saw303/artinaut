@@ -158,7 +158,10 @@ public class RemoteArtifactResolver extends BaseArtifactResolver implements Arti
           }
           return Optional.of(
               new ArtifactDto(
-                  response.getContentType().orElse(ALL_TYPE), new ByteArrayInputStream(buffer)));
+                  response.getContentType().orElse(ALL_TYPE),
+                  new ByteArrayInputStream(buffer),
+                  response.getHeaders().get(HttpHeaders.LAST_MODIFIED, Long.class).orElse(-1L),
+                  response.getContentLength()));
         } else {
           log.warn(
               "Did not find «{}» in repo «{}» (http status: {})",

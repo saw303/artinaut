@@ -66,7 +66,11 @@ public abstract class BaseArtifactResolver {
       if (Files.exists(path)) {
         log.debug("Returning file «{}»", path);
         return Optional.of(
-            new ArtifactDto(MediaType.of(artifact.getMediaType()), Files.newInputStream(path)));
+            new ArtifactDto(
+                MediaType.of(artifact.getMediaType()),
+                Files.newInputStream(path),
+                Files.getLastModifiedTime(path).toMillis(),
+                Files.size(path)));
       } else {
         log.error(
             "Cached artifact «{}» does not exists in repo «{}» but is registered in database",

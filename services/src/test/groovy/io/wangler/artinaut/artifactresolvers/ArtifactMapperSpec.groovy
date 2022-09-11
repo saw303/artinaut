@@ -7,6 +7,7 @@ import io.wangler.artinaut.LocalRepository
 import io.wangler.artinaut.Repository
 import spock.lang.Specification
 import spock.lang.Subject
+import spock.lang.Unroll
 
 import static io.micronaut.http.MediaType.APPLICATION_HAL_JSON_TYPE
 
@@ -15,6 +16,7 @@ class ArtifactMapperSpec extends Specification {
     @Subject
     ArtifactMapper artifactMapper = new ArtifactMapperImpl()
 
+    @Unroll
     void "Map #source to #target"() {
 
         given:
@@ -41,11 +43,11 @@ class ArtifactMapperSpec extends Specification {
         artifact.repositories.contains(repository)
 
         where:
-        source           || target
-        'hello.jar'      || 'jar'
-        'hello.zip'      || 'zip'
-        'hello.bzip2'    || 'bzip2'
-        'hello.docx'     || 'docx'
-        'hello.bat.docx' || 'docx'
+        source                 || target
+        'jello-9.0.0.jar'      || 'jar'
+        'jello-9.0.0.zip'      || 'zip'
+        'jello-9.0.0.bzip2'    || 'bzip2'
+        'jello-9.0.0.docx'     || 'docx'
+        'jello-9.0.0.bat.docx' || 'bat.docx'
     }
 }

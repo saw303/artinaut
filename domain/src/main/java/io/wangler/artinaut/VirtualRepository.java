@@ -30,7 +30,7 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.OrderBy;
+import javax.persistence.OrderColumn;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -44,6 +44,6 @@ public class VirtualRepository extends Repository {
       name = "virtual_repo_to_repos",
       joinColumns = {@JoinColumn(name = "virtual_repo_id", nullable = false)},
       inverseJoinColumns = {@JoinColumn(name = "repo_id", nullable = false)})
-  @OrderBy("key ASC")
+  @OrderColumn(name = "orderIndex", nullable = false)
   private List<Repository> repositories = new ArrayList<>();
 }
