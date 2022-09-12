@@ -39,9 +39,11 @@ subprojects { subproject ->
     dependencies {
         annotationProcessor("org.projectlombok:lombok")
         annotationProcessor("io.micronaut:micronaut-http-validation")
+        annotationProcessor("io.micronaut.security:micronaut-security-annotations")
         annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
         implementation("io.micronaut:micronaut-http-client")
         implementation("io.micronaut:micronaut-jackson-databind")
+        implementation("io.micronaut.security:micronaut-security")
 
         implementation("jakarta.annotation:jakarta.annotation-api")
         compileOnly("org.projectlombok:lombok")

@@ -15,6 +15,7 @@
     <logger name="io.micronaut.context.event.ApplicationEventPublisher" level="DEBUG"/>
     <logger name="org.flywaydb" level="INFO"/>
     <logger name="io.wangler.artinaut" level="DEBUG"/>
+    <logger name="io.micronaut.security" level="DEBUG"/>
     <!--<logger name="org.hibernate.SQL" level="DEBUG"/>
     <logger name="org.hibernate.type" level="TRACE"/>-->
 

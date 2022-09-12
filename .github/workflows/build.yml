@@ -16,17 +16,6 @@ jobs:
       M2_USER: ${{ secrets.M2_USER }}
       M2_PWD: ${{ secrets.M2_PWD }}
 
-    services:
-      db:
-        image: mariadb:10.8.3-jammy
-        ports:
-          - 3306:3306
-        env:
-          MYSQL_ROOT_PASSWORD: root_secret
-          MYSQL_DATABASE: artinaut
-          MYSQL_USER: artinaut
-          MYSQL_PASSWORD: secret
-
     steps:
     - uses: actions/checkout@v3
 

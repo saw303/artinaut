@@ -1,6 +1,15 @@
 micronaut:
   application:
     name: artinaut
+  security:
+    enabled: true
+    basic-auth:
+      enabled: true
+    intercept-url-map:
+      - pattern: /api/v1/repositories/**
+        access:
+          - ADMIN
+
 datasources:
   default:
     url: "jdbc:${DB_TYPE:mariadb}://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:artinaut}"

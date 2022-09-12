@@ -27,6 +27,7 @@ import io.micronaut.context.event.StartupEvent;
 import io.micronaut.runtime.Micronaut;
 import io.micronaut.runtime.event.annotation.EventListener;
 import io.wangler.artinaut.config.ArtinautConfig;
+import io.wangler.artinaut.users.UserService;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.io.IOException;
@@ -38,14 +39,27 @@ import lombok.extern.slf4j.Slf4j;
 @Singleton
 public class Application {
 
+  private static final String USER_ADMIN = "admin";
   @Inject private ArtinautConfig config;
+  @Inject private UserService userService;
 
   public static void main(String[] args) {
     Micronaut.run(Application.class, args);
   }
 
   @EventListener
-  public void checkTheFileSystem(StartupEvent evt) throws IOException {
+  public void onStartupEvent(StartupEvent evt) throws IOException {
+    checkFileStore();
+    setupAdminUser();
+  }
+
+  private void setupAdminUser() {
+    if (!userService.userExists(USER_ADMIN)) {
+      userService.createAdminUser(USER_ADMIN);
+    }
+  }
+
+  private void checkFileStore() throws IOException {
     Path fileStore = config.getFileStore().getPath();
     if (!Files.exists(fileStore)) {
       Files.createDirectories(fileStore);

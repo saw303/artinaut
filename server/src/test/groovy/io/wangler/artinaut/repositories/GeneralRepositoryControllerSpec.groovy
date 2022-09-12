@@ -3,13 +3,14 @@ package io.wangler.artinaut.repositories
 import ch.onstructive.micronaut.test.MicronautDatabaseSpecification
 import io.micronaut.http.HttpResponse
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
+import io.wangler.artinaut.ArtinautTestPropertyProvider
 import jakarta.inject.Inject
 
 import static java.lang.Boolean.FALSE
 import static java.lang.Boolean.TRUE
 
 @MicronautTest
-class GeneralRepositoryControllerSpec extends MicronautDatabaseSpecification {
+class GeneralRepositoryControllerSpec extends MicronautDatabaseSpecification implements ArtinautTestPropertyProvider {
 
     @Inject
     GeneralRepositoryClient generalRepositoryClient

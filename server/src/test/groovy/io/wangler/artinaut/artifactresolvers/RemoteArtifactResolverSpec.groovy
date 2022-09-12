@@ -5,6 +5,7 @@ import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import io.wangler.artinaut.ArtifactContextDto
 import io.wangler.artinaut.ArtifactDto
 import io.wangler.artinaut.ArtifactRepository
+import io.wangler.artinaut.ArtinautTestPropertyProvider
 import io.wangler.artinaut.RemoteRepository
 import io.wangler.artinaut.RemoteRepositoryRepository
 import jakarta.inject.Inject
@@ -20,7 +21,7 @@ import static io.micronaut.http.MediaType.TEXT_XML
 import static io.micronaut.http.MediaType.TEXT_XML_TYPE
 
 @MicronautTest
-class RemoteArtifactResolverSpec extends Specification {
+class RemoteArtifactResolverSpec extends Specification implements ArtinautTestPropertyProvider {
 
     @Subject
     @Inject
