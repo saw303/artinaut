@@ -9,6 +9,10 @@ micronaut:
       - pattern: /api/v1/repositories/**
         access:
           - ADMIN
+      - pattern: /repos/**
+        access:
+          - isAnonymous()
+          - isAuthenticated()
 
 datasources:
   default:

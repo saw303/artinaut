@@ -43,11 +43,8 @@ import reactor.core.publisher.Mono;
 @Singleton
 public class RepositoryAccessSecurityRule extends AbstractSecurityRule {
 
-  public static final Integer ORDER = ConfigurationInterceptUrlMapRule.ORDER + 1;
+  public static final Integer ORDER = ConfigurationInterceptUrlMapRule.ORDER - 1;
 
-  /**
-   * @param rolesFinder Roles Parser
-   */
   public RepositoryAccessSecurityRule(RolesFinder rolesFinder) {
     super(rolesFinder);
   }
@@ -60,7 +57,17 @@ public class RepositoryAccessSecurityRule extends AbstractSecurityRule {
       return Mono.just(SecurityRuleResult.UNKNOWN);
     }
 
-    return Mono.just(SecurityRuleResult.ALLOWED);
+    if (authentication == null) {
+      return Mono.just(SecurityRuleResult.REJECTED);
+    }
+
+    // TODO implement the business logic here in a non blocking manner.
+    /*
+    1. Load the repo & the current user
+    2. Verify if the repo is assigned one of the users groups.
+    */
+
+    return Mono.just(SecurityRuleResult.REJECTED);
   }
 
   @Override
