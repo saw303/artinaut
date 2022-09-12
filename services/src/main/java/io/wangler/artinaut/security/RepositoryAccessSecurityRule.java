@@ -26,6 +26,7 @@ package io.wangler.artinaut.security;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.AbstractSecurityRule;
+import io.micronaut.security.rules.ConfigurationInterceptUrlMapRule;
 import io.micronaut.security.rules.SecurityRuleResult;
 import io.micronaut.security.token.RolesFinder;
 import io.micronaut.web.router.RouteMatch;
@@ -33,18 +34,37 @@ import jakarta.inject.Singleton;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
+/**
+ * Verifies whether a user is allowed to access the given repository.
+ *
+ * @author Silvio Wangler <silvio.wangler@onstuctive.ch>
+ * @since 0.2.0
+ */
 @Singleton
-public class RepositorySecurityRule extends AbstractSecurityRule {
+public class RepositoryAccessSecurityRule extends AbstractSecurityRule {
+
+  public static final Integer ORDER = ConfigurationInterceptUrlMapRule.ORDER + 1;
+
   /**
    * @param rolesFinder Roles Parser
    */
-  public RepositorySecurityRule(RolesFinder rolesFinder) {
+  public RepositoryAccessSecurityRule(RolesFinder rolesFinder) {
     super(rolesFinder);
   }
 
   @Override
   public Publisher<SecurityRuleResult> check(
       HttpRequest<?> request, RouteMatch<?> routeMatch, Authentication authentication) {
+
+    if (!request.getPath().startsWith("/repos/")) {
+      return Mono.just(SecurityRuleResult.UNKNOWN);
+    }
+
     return Mono.just(SecurityRuleResult.ALLOWED);
+  }
+
+  @Override
+  public int getOrder() {
+    return ORDER;
   }
 }

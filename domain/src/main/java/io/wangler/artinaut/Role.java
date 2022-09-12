@@ -25,6 +25,7 @@ package io.wangler.artinaut;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -41,6 +42,7 @@ public class Role extends BaseEntity {
 
   public static final String ADMIN_ROLE_NAME = "ADMIN";
 
+  @NotBlank
   @Column(nullable = false, unique = true, length = 50)
   private String name;
 }
