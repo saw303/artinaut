@@ -48,3 +48,8 @@ netty:
 artinaut:
   file-store:
     path: "${ARTINAUT_FILESTORE:/Users/saw/dev/private/artinaut/build}"
+  security:
+    password-encoder:
+      iteration-count: 65536
+      key-length: 128
+      salt: "@rtIn@ut"

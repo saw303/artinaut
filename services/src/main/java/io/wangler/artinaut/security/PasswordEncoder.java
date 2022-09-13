@@ -23,6 +23,7 @@
  */
 package io.wangler.artinaut.security;
 
+import io.wangler.artinaut.config.PasswordEncoderConfig;
 import jakarta.inject.Singleton;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
@@ -43,9 +44,11 @@ public sealed interface PasswordEncoder {
   final class PBKDF2PasswordEncoder implements PasswordEncoder {
 
     private final SecretKeyFactory factory;
+    private final PasswordEncoderConfig passwordEncoderConfig;
 
     @SneakyThrows({NoSuchAlgorithmException.class})
-    public PBKDF2PasswordEncoder() {
+    public PBKDF2PasswordEncoder(PasswordEncoderConfig passwordEncoderConfig) {
+      this.passwordEncoderConfig = passwordEncoderConfig;
       this.factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
     }
 
@@ -53,7 +56,11 @@ public sealed interface PasswordEncoder {
     @SneakyThrows({InvalidKeySpecException.class})
     public String encode(CharSequence rawPassword) {
       KeySpec spec =
-          new PBEKeySpec(rawPassword.toString().toCharArray(), "salt".getBytes(), 65536, 128);
+          new PBEKeySpec(
+              rawPassword.toString().toCharArray(),
+              this.passwordEncoderConfig.getSalt().getBytes(),
+              this.passwordEncoderConfig.getIterationCount(),
+              this.passwordEncoderConfig.getKeyLength());
       return toHex(factory.generateSecret(spec).getEncoded());
     }
 
