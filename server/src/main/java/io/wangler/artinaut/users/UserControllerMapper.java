@@ -21,37 +21,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE
  */
-package io.wangler.artinaut;
+package io.wangler.artinaut.users;
 
-import java.util.HashSet;
+import ch.onstructive.mapping.mapstruct.MicronautMappingConfig;
 import java.util.Set;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import javax.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import org.mapstruct.Mapper;
 
-@Entity
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
-public class User extends BaseEntity {
+@Mapper(config = MicronautMappingConfig.class)
+public interface UserControllerMapper {
+  UserOperations.UserGetModel toUserGetModel(UserDto userDto);
 
-  @NotBlank
-  @Column(nullable = false, unique = true, length = 25)
-  private String name;
+  Set<String> fromGroups(Set<GroupDto> groupDtos);
 
-  @NotBlank
-  @Column(nullable = false, length = 80)
-  private String password;
-
-  @ManyToMany(cascade = CascadeType.ALL)
-  private Set<Group> groups = new HashSet<>();
+  default String fromGroup(GroupDto groupDto) {
+    return groupDto.name();
+  }
 }

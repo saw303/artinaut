@@ -26,10 +26,13 @@ package io.wangler.artinaut;
 import io.micronaut.data.annotation.Repository;
 import io.micronaut.data.jpa.repository.JpaRepository;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Repository
 public interface GroupRepository extends JpaRepository<Group, UUID> {
 
   Optional<Group> findByName(String name);
+
+  Set<Group> findAllByNameIn(Set<String> name);
 }

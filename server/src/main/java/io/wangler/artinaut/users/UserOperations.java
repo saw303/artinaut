@@ -23,58 +23,48 @@
  */
 package io.wangler.artinaut.users;
 
-import io.micronaut.security.authentication.Authentication;
+import io.micronaut.core.annotation.Introspected;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.annotation.Body;
+import io.micronaut.http.annotation.Delete;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.Post;
+import io.micronaut.http.annotation.Put;
+import io.micronaut.validation.Validated;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
-public interface UserService {
+@Validated
+public interface UserOperations {
 
-  /**
-   * Verifies whether the a user with that username exists.
-   *
-   * @param username the users name
-   * @return yes or no
-   */
-  boolean userExists(String username);
+  @Get
+  List<UserGetModel> findAllUsers();
 
-  /**
-   * Creates an standard user.
-   *
-   * @param username the users name
-   * @param password users password
-   * @param groups groups
-   * @return the use dto
-   */
-  UserDto createUser(String username, String password, Set<String> groups);
+  @Get("/{id}")
+  UserGetModel findUser(@NotNull UUID id);
 
-  /**
-   * Creates an admin user. The user gets the role «admin» assigned.
-   *
-   * @param username the users name
-   * @return the user dto
-   * @throws UserExistsException if the user already exists
-   */
-  UserDto createAdminUser(String username);
+  @Delete("/{id}")
+  void deleteUser(@NotNull UUID id);
 
-  UserDto createAdminUser(String username, String password);
+  @Post
+  HttpResponse<UUID> createUser(@Body @Valid UserPostModel model);
 
-  /**
-   * Reads the user.
-   *
-   * @param username the users name
-   * @return potential user
-   */
-  Optional<UserDto> findUser(String username);
+  @Put("/{id}")
+  HttpResponse<UUID> updateUser(@NotNull UUID id, @Body @Valid UserPutModel model);
 
-  boolean canAccess(String repoKey, Authentication authentication);
+  @Introspected
+  record UserGetModel(UUID id, String name, Set<String> groups) {}
 
-  Optional<UserDto> findUser(UUID id);
+  @Introspected
+  record UserPostModel(
+      @NotBlank String name, @NotBlank String password, @NotEmpty Set<String> groups) {}
+  ;
 
-  List<UserDto> findUsers();
-
-  void deleteUser(UUID id);
-
-  UserDto updateUser(UUID id, String password, Set<String> groups);
+  @Introspected
+  record UserPutModel(@NotBlank String password, @NotEmpty Set<String> groups) {}
 }

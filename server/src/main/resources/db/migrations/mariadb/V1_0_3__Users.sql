@@ -44,9 +44,6 @@ CREATE TABLE `repository_groups` (
 )
     ENGINE = InnoDB;
 
-ALTER TABLE `user_groups`
-ADD CONSTRAINT UK_jrc4ri7j11xq29b6p2unbmn5n UNIQUE (`groups_id`);
-
 ALTER TABLE `group`
 ADD CONSTRAINT UK_oy92ak6u4rmbq75jgb14npht7 UNIQUE (name);
 

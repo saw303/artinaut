@@ -21,56 +21,57 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE
  */
-package io.wangler.artinaut;
+package io.wangler.artinaut.users;
 
 import static io.micronaut.scheduling.TaskExecutors.IO;
 
 import ch.onstructive.exceptions.NotFoundException;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Controller;
-import io.micronaut.http.annotation.Get;
-import io.micronaut.http.annotation.PathVariable;
-import io.micronaut.http.server.types.files.StreamedFile;
 import io.micronaut.scheduling.annotation.ExecuteOn;
-import io.micronaut.validation.Validated;
-import javax.validation.constraints.NotBlank;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Controller("/repos/{repoKey}/{groupId:.*}/{artifactId:.*}/{version:.*}/{filename}")
+@Controller("/api/v1/users")
 @RequiredArgsConstructor
-@Slf4j
-@Validated
-public class ArtifactController {
+public class UserController implements UserOperations {
 
-  private final ArtifactService artifactService;
-  private final ArtifactControllerMapper artifactControllerMapper;
+  private final UserService userService;
+  private final UserControllerMapper mapper;
 
-  @Get
+  @Override
   @ExecuteOn(IO)
-  public HttpResponse<?> get(
-      @NotBlank @PathVariable("repoKey") String repositoryKey,
-      @NotBlank String groupId,
-      @NotBlank String artifactId,
-      @NotBlank String version,
-      @NotBlank String filename) {
+  public List<UserGetModel> findAllUsers() {
+    return userService.findUsers().stream().map(mapper::toUserGetModel).toList();
+  }
 
-    try {
-      ArtifactDto artifact =
-          artifactService.resolveArtifact(
-              artifactControllerMapper.toArtifactContext(
-                  repositoryKey, groupId, artifactId, version, filename));
-      return HttpResponse.ok()
-          .body(
-              new StreamedFile(
-                  artifact.inputStream(),
-                  artifact.mediaType(),
-                  artifact.lastModified(),
-                  artifact.contentLength()));
-    } catch (RepositoryDoesNotExistException ex) {
-      return HttpResponse.badRequest("repository «" + repositoryKey + "» does not exist");
-    } catch (NotFoundException ex) {
-      return HttpResponse.notFound();
-    }
+  @Override
+  @ExecuteOn(IO)
+  public UserGetModel findUser(UUID id) {
+    return userService
+        .findUser(id)
+        .map(mapper::toUserGetModel)
+        .orElseThrow(() -> new NotFoundException("user", id));
+  }
+
+  @Override
+  @ExecuteOn(IO)
+  public HttpResponse<UUID> createUser(UserPostModel model) {
+    UserDto user = userService.createUser(model.name(), model.password(), model.groups());
+    return HttpResponse.created(user.id());
+  }
+
+  @Override
+  @ExecuteOn(IO)
+  public void deleteUser(UUID id) {
+    userService.deleteUser(id);
+  }
+
+  @Override
+  @ExecuteOn(IO)
+  public HttpResponse<UUID> updateUser(UUID id, UserPutModel model) {
+    UserDto userDto = userService.updateUser(id, model.password(), model.groups());
+    return HttpResponse.ok(userDto.id());
   }
 }

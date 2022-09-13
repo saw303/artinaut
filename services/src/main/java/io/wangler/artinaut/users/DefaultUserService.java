@@ -24,7 +24,6 @@
 package io.wangler.artinaut.users;
 
 import ch.onstructive.exceptions.NotFoundException;
-import ch.onstructive.exceptions.NotYetImplementedException;
 import io.micronaut.context.annotation.Property;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.transaction.annotation.ReadOnly;
@@ -52,8 +51,7 @@ public class DefaultUserService implements UserService {
   private final PasswordEncoder passwordEncoder;
   private final UserMapper userMapper;
   private final RepositoryRepository repositoryRepository;
-
-  private CharSequence adminPassword;
+  private final CharSequence adminPassword;
 
   public static final String ADMIN_PASSWD_NOT_SET = "-1";
 
@@ -83,33 +81,35 @@ public class DefaultUserService implements UserService {
 
   @Override
   @Transactional
-  public UserDto createUser(String username) {
-    throw new NotYetImplementedException();
+  public UserDto createUser(String username, String password, Set<String> groups) {
+    if (userExists(username)) {
+      throw new UserExistsException(username);
+    }
+
+    Set<Group> groupEntities = groupRepository.findAllByNameIn(groups);
+    log.info("Generated password for user «{}» is «{}»", username, password);
+    User user =
+        userRepository.save(new User(username, passwordEncoder.encode(password), groupEntities));
+    return userMapper.toUserDto(user);
   }
 
   @Override
   @Transactional
   public UserDto createAdminUser(String username) {
 
-    if (userExists(username)) {
-      throw new UserExistsException(username);
+    String pwd;
+    if (this.adminPassword == null || ADMIN_PASSWD_NOT_SET.contentEquals(this.adminPassword)) {
+      pwd = UUID.randomUUID().toString();
+    } else {
+      pwd = this.adminPassword.toString();
     }
+    return createAdminUser(username, pwd);
+  }
 
-    Group adminGroup =
-        groupRepository
-            .findByName(Group.ADMIN_ROLE_NAME)
-            .orElseThrow(() -> new NotFoundException("group", Group.ADMIN_ROLE_NAME));
-
-    if (this.adminPassword == null || ADMIN_PASSWD_NOT_SET.equals(this.adminPassword)) {
-      this.adminPassword = UUID.randomUUID().toString();
-    }
-
-    log.info("Generated password for admin user «{}» is «{}»", username, this.adminPassword);
-
-    User user =
-        userRepository.save(
-            new User(username, passwordEncoder.encode(this.adminPassword), Set.of(adminGroup)));
-    return userMapper.toUserDto(user);
+  @Override
+  @Transactional
+  public UserDto createAdminUser(String username, String password) {
+    return createUser(username, password, Set.of("ADMIN"));
   }
 
   @Override
@@ -156,5 +156,37 @@ public class DefaultUserService implements UserService {
         groups);
 
     return groups.size() > 0;
+  }
+
+  @Override
+  @ReadOnly
+  public Optional<UserDto> findUser(UUID id) {
+    return userRepository.findById(id).map(userMapper::toUserDto);
+  }
+
+  @Override
+  @ReadOnly
+  public List<UserDto> findUsers() {
+    return userRepository.findAll().stream().map(userMapper::toUserDto).toList();
+  }
+
+  @Override
+  @Transactional
+  public void deleteUser(UUID id) {
+    User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("user", id));
+    user.getGroups().clear();
+    userRepository.save(user);
+    userRepository.delete(user);
+  }
+
+  @Override
+  @Transactional
+  public UserDto updateUser(UUID id, String password, Set<String> groups) {
+    User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("user", id));
+    Set<Group> groupEntities = groupRepository.findAllByNameIn(groups);
+    user.getGroups().clear();
+    user.getGroups().addAll(groupEntities);
+    user.setPassword(passwordEncoder.encode(password));
+    return userMapper.toUserDto(userRepository.save(user));
   }
 }
