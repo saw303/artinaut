@@ -24,15 +24,12 @@
 package io.wangler.artinaut.users;
 
 import ch.onstructive.mapping.mapstruct.MicronautMappingConfig;
-import io.wangler.artinaut.Group;
 import io.wangler.artinaut.User;
 import org.mapstruct.Mapper;
 
-@Mapper(config = MicronautMappingConfig.class)
+@Mapper(
+    config = MicronautMappingConfig.class,
+    uses = {GroupMapper.class})
 public interface UserMapper {
   UserDto toUserDto(User user);
-
-  default String fromGroup(Group group) {
-    return group.getName();
-  }
 }

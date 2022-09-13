@@ -24,6 +24,9 @@
 package io.wangler.artinaut.repositories;
 
 import ch.onstructive.mapping.mapstruct.MicronautMappingConfig;
+import io.wangler.artinaut.users.GroupDto;
+import java.util.List;
+import java.util.Set;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -43,33 +46,37 @@ public interface GeneralRepositoryControllerMapper {
   }
 
   @Mapping(target = "type", constant = "local")
-  GeneralRepositoryController.GeneralRepositoryGetModel fromLocalRepositoryDto(
+  GeneralRepositoryOperations.GeneralRepositoryGetModel fromLocalRepositoryDto(
       LocalRepositoryDto repositoryDto);
 
   @Mapping(target = "type", constant = "virtual")
-  GeneralRepositoryController.GeneralRepositoryGetModel fromVirtualRepositoryDto(
+  GeneralRepositoryOperations.GeneralRepositoryGetModel fromVirtualRepositoryDto(
       VirtualRepositoryDto repositoryDto);
 
   @Mapping(target = "type", constant = "remote")
-  GeneralRepositoryController.GeneralRepositoryGetModel fromRemoteRepositoryDto(
+  GeneralRepositoryOperations.GeneralRepositoryGetModel fromRemoteRepositoryDto(
       RemoteRepositoryDto repositoryDto);
 
   @Mapping(target = "type", constant = "remote")
-  GeneralRepositoryController.RemoteRepositoryGetModel toRemoteRepositoryGetModel(
+  GeneralRepositoryOperations.RemoteRepositoryGetModel toRemoteRepositoryGetModel(
       RemoteRepositoryDto dto);
 
   @Mapping(target = "type", constant = "local")
-  GeneralRepositoryController.LocalRepositoryGetModel toLocalRepositoryGetModel(
+  GeneralRepositoryOperations.LocalRepositoryGetModel toLocalRepositoryGetModel(
       LocalRepositoryDto dto);
 
   @Mapping(target = "type", constant = "virtual")
-  GeneralRepositoryController.VirtualRepositoryGetModel toVirtualRepositoryGetModel(
+  GeneralRepositoryOperations.VirtualRepositoryGetModel toVirtualRepositoryGetModel(
       VirtualRepositoryDto dto);
 
   @Mapping(target = "id", ignore = true)
+  @Mapping(target = "groups", ignore = true)
   RemoteRepositoryDto fromRemoteRepositoryPostModel(
-      GeneralRepositoryController.RemoteRepositoryPostModel model);
+      GeneralRepositoryOperations.RemoteRepositoryPostModel model);
 
+  @Mapping(target = "groups", ignore = true)
   LocalRepositoryDto fromLocalRepositoryPostModel(
-      GeneralRepositoryController.LocalRepositoryPostModel model);
+      GeneralRepositoryOperations.LocalRepositoryPostModel model);
+
+  List<GeneralRepositoryOperations.GroupGetModel> toGroupGetModels(Set<GroupDto> groups);
 }

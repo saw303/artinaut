@@ -21,20 +21,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE
  */
-package io.wangler.artinaut.repositories;
+package io.wangler.artinaut.groups;
 
-import io.wangler.artinaut.users.GroupDto;
-import java.util.HashSet;
-import java.util.Set;
+import io.micronaut.core.annotation.Introspected;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.annotation.Body;
+import io.micronaut.http.annotation.Delete;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.Post;
+import io.micronaut.validation.Validated;
+import java.util.List;
 import java.util.UUID;
-import lombok.Data;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
-@Data
-public abstract class RepositoryDto {
+@Validated
+public interface GroupOperations {
 
-  private UUID id;
-  private String key;
-  private boolean handleReleases;
-  private boolean handleSnapshots;
-  private Set<GroupDto> groups = new HashSet<>();
+  @Get
+  List<GroupGetModel> findAllGroups();
+
+  @Post
+  HttpResponse<UUID> createGroup(@Body GroupPostModel name);
+
+  @Delete("/{groupId}")
+  void deleteGroup(@NotNull UUID groupId);
+
+  @Introspected
+  record GroupGetModel(UUID id, String name) {}
+
+  @Introspected
+  record GroupPostModel(@NotBlank String name) {}
 }

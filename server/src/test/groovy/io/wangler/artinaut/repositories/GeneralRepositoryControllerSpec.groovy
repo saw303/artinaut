@@ -17,14 +17,14 @@ class GeneralRepositoryControllerSpec extends MicronautDatabaseSpecification imp
 
     void "List all registered repositories"() {
         when:
-        List<GeneralRepositoryController.GeneralRepositoryGetModel> repositories = generalRepositoryClient.findAllRepositories()
+        List<GeneralRepositoryOperations.GeneralRepositoryGetModel> repositories = generalRepositoryClient.findAllRepositories()
 
         then:
         repositories.size() == 2
 
         when:
-        GeneralRepositoryController.GeneralRepositoryGetModel testRemote = repositories.find { it.key() == 'test-remote'}
-        GeneralRepositoryController.GeneralRepositoryGetModel testLocal = repositories.find { it.key() == 'test-local'}
+        GeneralRepositoryOperations.GeneralRepositoryGetModel testRemote = repositories.find { it.key() == 'test-remote'}
+        GeneralRepositoryOperations.GeneralRepositoryGetModel testLocal = repositories.find { it.key() == 'test-local'}
 
         then:
         with(testLocal) {
@@ -41,7 +41,7 @@ class GeneralRepositoryControllerSpec extends MicronautDatabaseSpecification imp
         }
 
         when:
-        GeneralRepositoryController.RemoteRepositoryGetModel remoteRepo = generalRepositoryClient.findRemoteRepo(testRemote.id())
+        GeneralRepositoryOperations.RemoteRepositoryGetModel remoteRepo = generalRepositoryClient.findRemoteRepo(testRemote.id())
 
         then:
         with(remoteRepo) {
@@ -55,7 +55,7 @@ class GeneralRepositoryControllerSpec extends MicronautDatabaseSpecification imp
         }
 
         when:
-        GeneralRepositoryController.LocalRepositoryGetModel localRepo = generalRepositoryClient.findLocalRepo(testLocal.id())
+        GeneralRepositoryOperations.LocalRepositoryGetModel localRepo = generalRepositoryClient.findLocalRepo(testLocal.id())
 
         then:
         with(localRepo) {
@@ -67,7 +67,7 @@ class GeneralRepositoryControllerSpec extends MicronautDatabaseSpecification imp
     void "Create a remote repository"() {
 
         given:
-        GeneralRepositoryController.RemoteRepositoryPostModel myRepo = new GeneralRepositoryController.RemoteRepositoryPostModel(
+        GeneralRepositoryOperations.RemoteRepositoryPostModel myRepo = new GeneralRepositoryOperations.RemoteRepositoryPostModel(
                 null, 'test-my-repo', new URL('http://repo.one.com/'), 'repos', 'user', 'pwd', FALSE, TRUE, FALSE
         )
 
@@ -78,7 +78,7 @@ class GeneralRepositoryControllerSpec extends MicronautDatabaseSpecification imp
         UUID repoId = res.getBody(UUID).get()
 
         and:
-        GeneralRepositoryController.RemoteRepositoryGetModel repo = generalRepositoryClient.findRemoteRepo(repoId)
+        GeneralRepositoryOperations.RemoteRepositoryGetModel repo = generalRepositoryClient.findRemoteRepo(repoId)
 
         then:
         noExceptionThrown()
@@ -100,7 +100,7 @@ class GeneralRepositoryControllerSpec extends MicronautDatabaseSpecification imp
     void "Create a local repository"() {
 
         given:
-        GeneralRepositoryController.LocalRepositoryPostModel myRepo = new GeneralRepositoryController.LocalRepositoryPostModel(
+        GeneralRepositoryOperations.LocalRepositoryPostModel myRepo = new GeneralRepositoryOperations.LocalRepositoryPostModel(
                 null, 'test-my-repo', FALSE, TRUE
         )
 
@@ -111,7 +111,7 @@ class GeneralRepositoryControllerSpec extends MicronautDatabaseSpecification imp
         UUID repoId = res.getBody(UUID).get()
 
         and:
-        GeneralRepositoryController.LocalRepositoryGetModel repo = generalRepositoryClient.findLocalRepo(repoId)
+        GeneralRepositoryOperations.LocalRepositoryGetModel repo = generalRepositoryClient.findLocalRepo(repoId)
 
         then:
         noExceptionThrown()

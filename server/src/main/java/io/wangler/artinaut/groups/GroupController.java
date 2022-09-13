@@ -21,20 +21,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE
  */
-package io.wangler.artinaut.repositories;
+package io.wangler.artinaut.groups;
 
+import static io.micronaut.scheduling.TaskExecutors.IO;
+
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.scheduling.annotation.ExecuteOn;
 import io.wangler.artinaut.users.GroupDto;
-import java.util.HashSet;
-import java.util.Set;
+import io.wangler.artinaut.users.GroupService;
+import java.util.List;
 import java.util.UUID;
-import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
-@Data
-public abstract class RepositoryDto {
+@Controller("/api/v1/groups/")
+@RequiredArgsConstructor
+public class GroupController implements GroupOperations {
 
-  private UUID id;
-  private String key;
-  private boolean handleReleases;
-  private boolean handleSnapshots;
-  private Set<GroupDto> groups = new HashSet<>();
+  private final GroupsControllerMapper mapper;
+  private final GroupService groupService;
+
+  @Override
+  @ExecuteOn(IO)
+  public List<GroupGetModel> findAllGroups() {
+    return groupService.findAllGroups().stream().map(mapper::toGroupGetModel).toList();
+  }
+
+  @Override
+  @ExecuteOn(IO)
+  public HttpResponse<UUID> createGroup(GroupPostModel model) {
+    GroupDto group = groupService.createGroup(model.name());
+    return HttpResponse.created(group.id());
+  }
+
+  @Override
+  @ExecuteOn(IO)
+  public void deleteGroup(UUID groupId) {
+    groupService.deleteGroup(groupId);
+  }
 }

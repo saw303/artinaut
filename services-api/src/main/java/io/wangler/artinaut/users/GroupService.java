@@ -21,20 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE
  */
-package io.wangler.artinaut.repositories;
+package io.wangler.artinaut.users;
 
-import io.wangler.artinaut.users.GroupDto;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
-import lombok.Data;
 
-@Data
-public abstract class RepositoryDto {
+public interface GroupService {
+  List<GroupDto> findAllGroups();
 
-  private UUID id;
-  private String key;
-  private boolean handleReleases;
-  private boolean handleSnapshots;
-  private Set<GroupDto> groups = new HashSet<>();
+  GroupDto createGroup(String name);
+
+  void deleteGroup(UUID groupId);
 }

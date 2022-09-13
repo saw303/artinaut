@@ -21,20 +21,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE
  */
-package io.wangler.artinaut.repositories;
+package io.wangler.artinaut.users;
 
-import io.wangler.artinaut.users.GroupDto;
-import java.util.HashSet;
-import java.util.Set;
+import io.micronaut.transaction.annotation.ReadOnly;
+import io.wangler.artinaut.Group;
+import io.wangler.artinaut.GroupRepository;
+import jakarta.inject.Singleton;
+import java.util.List;
 import java.util.UUID;
-import lombok.Data;
+import javax.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
-@Data
-public abstract class RepositoryDto {
+@Singleton
+@RequiredArgsConstructor
+public class DefaultGroupService implements GroupService {
 
-  private UUID id;
-  private String key;
-  private boolean handleReleases;
-  private boolean handleSnapshots;
-  private Set<GroupDto> groups = new HashSet<>();
+  private final GroupRepository groupRepository;
+  private final GroupMapper groupMapper;
+
+  @Override
+  @ReadOnly
+  public List<GroupDto> findAllGroups() {
+    return groupRepository.findAll().stream().map(groupMapper::toGroupDto).toList();
+  }
+
+  @Override
+  @Transactional
+  public GroupDto createGroup(String name) {
+    Group group = groupRepository.save(groupMapper.toGroup(name));
+    return groupMapper.toGroupDto(group);
+  }
+
+  @Override
+  @Transactional
+  public void deleteGroup(UUID groupId) {
+    groupRepository.deleteById(groupId);
+  }
 }

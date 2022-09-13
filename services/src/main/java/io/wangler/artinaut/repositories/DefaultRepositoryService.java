@@ -23,9 +23,13 @@
  */
 package io.wangler.artinaut.repositories;
 
+import ch.onstructive.exceptions.NotFoundException;
 import io.micronaut.transaction.annotation.ReadOnly;
+import io.wangler.artinaut.Group;
+import io.wangler.artinaut.GroupRepository;
 import io.wangler.artinaut.LocalRepository;
 import io.wangler.artinaut.RemoteRepository;
+import io.wangler.artinaut.Repository;
 import io.wangler.artinaut.RepositoryRepository;
 import jakarta.inject.Singleton;
 import java.util.Optional;
@@ -38,6 +42,7 @@ import lombok.RequiredArgsConstructor;
 public class DefaultRepositoryService implements RepositoryService {
 
   private final RepositoryRepository repositoryRepository;
+  private final GroupRepository groupRepository;
   private final RepositoryServiceMapper repositoryServiceMapper;
 
   @Override
@@ -70,5 +75,33 @@ public class DefaultRepositoryService implements RepositoryService {
     repositoryRepository.save(repository);
 
     return repositoryServiceMapper.toRepositoryDto(repository);
+  }
+
+  @Override
+  @Transactional
+  public void unassignGroup(UUID repoId, UUID groupId) {
+    Repository repository =
+        repositoryRepository
+            .findById(repoId)
+            .orElseThrow(() -> new NotFoundException("repository", repoId));
+    repository.getGroups().removeIf(g -> g.getId().equals(groupId));
+    repositoryRepository.save(repository);
+  }
+
+  @Override
+  @Transactional
+  public void assignGroup(UUID repoId, UUID groupId) {
+
+    Repository repository =
+        repositoryRepository
+            .findById(repoId)
+            .orElseThrow(() -> new NotFoundException("repository", repoId));
+    Group group =
+        groupRepository
+            .findById(groupId)
+            .orElseThrow(() -> new NotFoundException("group", groupId));
+
+    repository.getGroups().add(group);
+    repositoryRepository.save(repository);
   }
 }

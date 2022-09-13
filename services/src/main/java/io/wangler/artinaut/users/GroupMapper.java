@@ -21,20 +21,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE
  */
-package io.wangler.artinaut.repositories;
+package io.wangler.artinaut.users;
 
-import io.wangler.artinaut.users.GroupDto;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
-import lombok.Data;
+import ch.onstructive.mapping.mapstruct.MicronautMappingConfig;
+import io.wangler.artinaut.Group;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Data
-public abstract class RepositoryDto {
+@Mapper(config = MicronautMappingConfig.class)
+public interface GroupMapper {
 
-  private UUID id;
-  private String key;
-  private boolean handleReleases;
-  private boolean handleSnapshots;
-  private Set<GroupDto> groups = new HashSet<>();
+  GroupDto toGroupDto(Group group);
+
+  @Mapping(target = "id", ignore = true)
+  @Mapping(target = "version", ignore = true)
+  @Mapping(target = "roles", ignore = true)
+  Group toGroup(String name);
 }

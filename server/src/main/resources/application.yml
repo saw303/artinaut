@@ -6,7 +6,7 @@ micronaut:
     basic-auth:
       enabled: true
     intercept-url-map:
-      - pattern: /api/v1/repositories/**
+      - pattern: /api/v1/**
         access:
           - ADMIN
       - pattern: /repos/**
