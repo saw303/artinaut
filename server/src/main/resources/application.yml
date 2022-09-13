@@ -1,6 +1,19 @@
 micronaut:
   application:
     name: artinaut
+  security:
+    enabled: true
+    basic-auth:
+      enabled: true
+    intercept-url-map:
+      - pattern: /api/v1/**
+        access:
+          - ADMIN
+      - pattern: /repos/**
+        access:
+          - isAnonymous()
+          - isAuthenticated()
+
 datasources:
   default:
     url: "jdbc:${DB_TYPE:mariadb}://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:artinaut}"
@@ -35,3 +48,8 @@ netty:
 artinaut:
   file-store:
     path: "${ARTINAUT_FILESTORE:/Users/saw/dev/private/artinaut/build}"
+  security:
+    password-encoder:
+      iteration-count: 65536
+      key-length: 128
+      salt: "@rtIn@ut"

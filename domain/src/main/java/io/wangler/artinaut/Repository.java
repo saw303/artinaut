@@ -23,17 +23,25 @@
  */
 package io.wangler.artinaut;
 
+import java.util.HashSet;
+import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.ManyToMany;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(
+    callSuper = true,
+    exclude = {"groups"})
+@ToString(exclude = {"groups"})
 public abstract class Repository extends BaseEntity {
 
   @Column(nullable = false, unique = true, length = 20, name = "repo_key")
@@ -44,4 +52,7 @@ public abstract class Repository extends BaseEntity {
 
   @Column(nullable = false)
   private boolean handleSnapshots;
+
+  @ManyToMany(cascade = CascadeType.ALL)
+  private Set<Group> groups = new HashSet<>();
 }

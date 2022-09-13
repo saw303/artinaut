@@ -23,15 +23,21 @@
  */
 package io.wangler.artinaut.repositories;
 
+import io.micronaut.core.annotation.Introspected;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Body;
+import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
+import io.micronaut.http.annotation.Put;
 import io.micronaut.validation.Validated;
+import java.net.URL;
 import java.util.List;
 import java.util.UUID;
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Validated
 public interface GeneralRepositoryOperations {
@@ -52,10 +58,66 @@ public interface GeneralRepositoryOperations {
       @PathVariable("id") UUID id);
 
   @Post("/remote/")
-  HttpResponse addRemoteRepo(
+  HttpResponse<UUID> addRemoteRepo(
       @Body @Valid GeneralRepositoryController.RemoteRepositoryPostModel model);
 
   @Post("/local/")
-  HttpResponse addLocalRepo(
+  HttpResponse<UUID> addLocalRepo(
       @Body @Valid GeneralRepositoryController.LocalRepositoryPostModel model);
+
+  @Get("/{id}/groups/")
+  List<GeneralRepositoryController.GroupGetModel> findAssignedGroups(UUID id);
+
+  @Put("/{id}/groups/{groupId}")
+  HttpResponse<?> assignGroup(UUID id, UUID groupId);
+
+  @Delete("/{id}/groups/{groupId}")
+  void unassignGroup(UUID id, UUID groupId);
+
+  @Introspected
+  record GeneralRepositoryGetModel(
+      UUID id, String key, String type, Boolean handleReleases, Boolean handleSnapshots) {}
+
+  @Introspected
+  record LocalRepositoryGetModel(
+      UUID id, String key, String type, Boolean handleReleases, Boolean handleSnapshots) {}
+
+  @Introspected
+  record VirtualRepositoryGetModel(
+      UUID id, String key, String type, Boolean handleReleases, Boolean handleSnapshots) {}
+
+  @Introspected
+  record RemoteRepositoryGetModel(
+      UUID id,
+      String key,
+      String type,
+      URL url,
+      String path,
+      String username,
+      String password,
+      Boolean handleReleases,
+      Boolean handleSnapshots,
+      Boolean storeArtifactsLocally) {}
+
+  @Introspected
+  record RemoteRepositoryPostModel(
+      UUID id,
+      @NotBlank String key,
+      @NotNull URL url,
+      @NotBlank String path,
+      String username,
+      String password,
+      @NotNull Boolean handleReleases,
+      @NotNull Boolean handleSnapshots,
+      @NotNull Boolean storeArtifactsLocally) {}
+
+  @Introspected
+  record LocalRepositoryPostModel(
+      UUID id,
+      @NotBlank String key,
+      @NotNull Boolean handleReleases,
+      @NotNull Boolean handleSnapshots) {}
+
+  @Introspected
+  record GroupGetModel(UUID id, String name) {}
 }

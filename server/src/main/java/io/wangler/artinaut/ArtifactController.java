@@ -32,6 +32,7 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.server.types.files.StreamedFile;
 import io.micronaut.scheduling.annotation.ExecuteOn;
+import io.micronaut.validation.Validated;
 import javax.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 @Controller("/repos/{repoKey}/{groupId:.*}/{artifactId:.*}/{version:.*}/{filename}")
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 public class ArtifactController {
 
   private final ArtifactService artifactService;
@@ -66,8 +68,10 @@ public class ArtifactController {
                   artifact.lastModified(),
                   artifact.contentLength()));
     } catch (RepositoryDoesNotExistException ex) {
+      log.error("repo «{}» not found", repositoryKey, ex);
       return HttpResponse.badRequest("repository «" + repositoryKey + "» does not exist");
     } catch (NotFoundException ex) {
+      log.error("artifact not found", ex);
       return HttpResponse.notFound();
     }
   }

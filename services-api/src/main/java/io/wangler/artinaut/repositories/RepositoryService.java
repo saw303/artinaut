@@ -35,4 +35,8 @@ public interface RepositoryService {
   RemoteRepositoryDto createRemoteRepository(RemoteRepositoryDto remoteRepository);
 
   LocalRepositoryDto createLocalRepository(LocalRepositoryDto fromLocalRepositoryPostModel);
+
+  void unassignGroup(UUID repoId, UUID groupId);
+
+  void assignGroup(UUID repoId, UUID groupId);
 }

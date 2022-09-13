@@ -23,6 +23,9 @@
  */
 package io.wangler.artinaut.repositories;
 
+import io.wangler.artinaut.users.GroupDto;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import lombok.Data;
 
@@ -33,4 +36,5 @@ public abstract class RepositoryDto {
   private String key;
   private boolean handleReleases;
   private boolean handleSnapshots;
+  private Set<GroupDto> groups = new HashSet<>();
 }

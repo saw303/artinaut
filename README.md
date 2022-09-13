@@ -22,6 +22,8 @@ Artinaut aims to solve these major problems and provide a small Java application
 - ✅ Support for local repositories
 - ✅ Support for virtual repositories (combine a collection of local or remote repositories and expose it as one repository)
 - ✅ Support for MariaDB 10.3+
+- ✅ Support for Group management
+- ⏸ Support for User management
 
 ### Release 0.2 🐣 - Do first steps
 

@@ -23,17 +23,16 @@
  */
 package io.wangler.artinaut.repositories;
 
+import static io.micronaut.scheduling.TaskExecutors.IO;
+
 import ch.onstructive.exceptions.NotFoundException;
-import io.micronaut.core.annotation.Introspected;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.PathVariable;
-import java.net.URL;
+import io.micronaut.scheduling.annotation.ExecuteOn;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.StreamSupport;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -44,6 +43,7 @@ public class GeneralRepositoryController implements GeneralRepositoryOperations 
   private final GeneralRepositoryControllerMapper mapper;
 
   @Override
+  @ExecuteOn(IO)
   public List<GeneralRepositoryGetModel> findAllRepositories() {
     return StreamSupport.stream(repositoryService.findAllRepositories().spliterator(), false)
         .map(mapper::toGeneralRepositoryGetModel)
@@ -51,6 +51,7 @@ public class GeneralRepositoryController implements GeneralRepositoryOperations 
   }
 
   @Override
+  @ExecuteOn(IO)
   public GeneralRepositoryGetModel findRepo(@PathVariable("id") UUID id) {
     return repositoryService
         .findRepository(id)
@@ -59,18 +60,60 @@ public class GeneralRepositoryController implements GeneralRepositoryOperations 
   }
 
   @Override
+  @ExecuteOn(IO)
   public RemoteRepositoryGetModel findRemoteRepo(UUID id) {
     return mapper.toRemoteRepositoryGetModel(fetchRepository(id, RemoteRepositoryDto.class));
   }
 
   @Override
+  @ExecuteOn(IO)
   public LocalRepositoryGetModel findLocalRepo(UUID id) {
     return mapper.toLocalRepositoryGetModel(fetchRepository(id, LocalRepositoryDto.class));
   }
 
   @Override
+  @ExecuteOn(IO)
   public VirtualRepositoryGetModel findVirtualRepo(UUID id) {
     return mapper.toVirtualRepositoryGetModel(fetchRepository(id, VirtualRepositoryDto.class));
+  }
+
+  @Override
+  @ExecuteOn(IO)
+  public HttpResponse<UUID> addRemoteRepo(RemoteRepositoryPostModel model) {
+    RepositoryDto remoteRepository =
+        repositoryService.createRemoteRepository(mapper.fromRemoteRepositoryPostModel(model));
+    return HttpResponse.created(remoteRepository.getId());
+  }
+
+  @Override
+  @ExecuteOn(IO)
+  public HttpResponse<UUID> addLocalRepo(LocalRepositoryPostModel model) {
+    RepositoryDto remoteRepository =
+        repositoryService.createLocalRepository(mapper.fromLocalRepositoryPostModel(model));
+    return HttpResponse.created(remoteRepository.getId());
+  }
+
+  @Override
+  @ExecuteOn(IO)
+  public List<GroupGetModel> findAssignedGroups(UUID id) {
+    RepositoryDto repository =
+        repositoryService
+            .findRepository(id)
+            .orElseThrow(() -> new NotFoundException("repository", id));
+    return mapper.toGroupGetModels(repository.getGroups());
+  }
+
+  @Override
+  @ExecuteOn(IO)
+  public HttpResponse<?> assignGroup(UUID id, UUID groupId) {
+    repositoryService.assignGroup(id, groupId);
+    return HttpResponse.accepted();
+  }
+
+  @Override
+  @ExecuteOn(IO)
+  public void unassignGroup(UUID id, UUID groupId) {
+    repositoryService.unassignGroup(id, groupId);
   }
 
   private <T extends RepositoryDto> T fetchRepository(UUID id, Class<T> dtoClass) {
@@ -84,62 +127,4 @@ public class GeneralRepositoryController implements GeneralRepositoryOperations 
     }
     return (T) repository;
   }
-
-  @Override
-  public HttpResponse<UUID> addRemoteRepo(RemoteRepositoryPostModel model) {
-    RepositoryDto remoteRepository =
-        repositoryService.createRemoteRepository(mapper.fromRemoteRepositoryPostModel(model));
-    return HttpResponse.created(remoteRepository.getId());
-  }
-
-  @Override
-  public HttpResponse addLocalRepo(LocalRepositoryPostModel model) {
-    RepositoryDto remoteRepository =
-        repositoryService.createLocalRepository(mapper.fromLocalRepositoryPostModel(model));
-    return HttpResponse.created(remoteRepository.getId());
-  }
-
-  @Introspected
-  public record GeneralRepositoryGetModel(
-      UUID id, String key, String type, Boolean handleReleases, Boolean handleSnapshots) {}
-
-  @Introspected
-  public record LocalRepositoryGetModel(
-      UUID id, String key, String type, Boolean handleReleases, Boolean handleSnapshots) {}
-
-  @Introspected
-  public record VirtualRepositoryGetModel(
-      UUID id, String key, String type, Boolean handleReleases, Boolean handleSnapshots) {}
-
-  @Introspected
-  public record RemoteRepositoryGetModel(
-      UUID id,
-      String key,
-      String type,
-      URL url,
-      String path,
-      String username,
-      String password,
-      Boolean handleReleases,
-      Boolean handleSnapshots,
-      Boolean storeArtifactsLocally) {}
-
-  @Introspected
-  public record RemoteRepositoryPostModel(
-      UUID id,
-      @NotBlank String key,
-      @NotNull URL url,
-      @NotBlank String path,
-      String username,
-      String password,
-      @NotNull Boolean handleReleases,
-      @NotNull Boolean handleSnapshots,
-      @NotNull Boolean storeArtifactsLocally) {}
-
-  @Introspected
-  public record LocalRepositoryPostModel(
-      UUID id,
-      @NotBlank String key,
-      @NotNull Boolean handleReleases,
-      @NotNull Boolean handleSnapshots) {}
 }
