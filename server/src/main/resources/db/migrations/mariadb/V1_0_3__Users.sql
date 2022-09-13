@@ -91,17 +91,26 @@ ADD CONSTRAINT FK8kj36fspn8k6swbovsduqgend
 
 SET @adminRoleId = (SELECT UUID());
 SET @adminName = (SELECT 'ADMIN');
+SET @readerRoleId = (SELECT UUID());
+SET @readerName = (SELECT 'READER');
+SET @deployerRoleId = (SELECT UUID());
+SET @deployerName = (SELECT 'DEPLOYER');
 
 INSERT INTO role(id, version, name)
-VALUES (@adminRoleId, 0, @adminName);
+VALUES (@adminRoleId, 0, @adminName),
+    (@readerRoleId, 0, @readerName),
+    (@deployerRoleId, 0, @deployerName);
 
 SET @adminGroupId = (SELECT UUID());
+SET @readerGroupId = (SELECT UUID());
 
 INSERT INTO `group`(id, version, name)
-VALUES (@adminGroupId, 0, @adminName);
+VALUES (@adminGroupId, 0, @adminName),
+    (@readerGroupId, 0, @readerName);
 
 INSERT INTO group_roles(group_id, roles_id)
-VALUES (@adminGroupId, @adminRoleId);
+VALUES (@adminGroupId, @adminRoleId),
+    (@readerGroupId, @readerRoleId);
 
 INSERT INTO repository_groups(repository_id, groups_id)
 SELECT r.id, @adminGroupId
