@@ -68,8 +68,10 @@ public class ArtifactController {
                   artifact.lastModified(),
                   artifact.contentLength()));
     } catch (RepositoryDoesNotExistException ex) {
+      log.error("repo «{}» not found", repositoryKey, ex);
       return HttpResponse.badRequest("repository «" + repositoryKey + "» does not exist");
     } catch (NotFoundException ex) {
+      log.error("artifact not found", ex);
       return HttpResponse.notFound();
     }
   }
