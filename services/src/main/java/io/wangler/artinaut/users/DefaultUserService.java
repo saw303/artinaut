@@ -26,13 +26,17 @@ package io.wangler.artinaut.users;
 import ch.onstructive.exceptions.NotFoundException;
 import ch.onstructive.exceptions.NotYetImplementedException;
 import io.micronaut.context.annotation.Property;
+import io.micronaut.security.authentication.Authentication;
 import io.micronaut.transaction.annotation.ReadOnly;
 import io.wangler.artinaut.Group;
 import io.wangler.artinaut.GroupRepository;
+import io.wangler.artinaut.Repository;
+import io.wangler.artinaut.RepositoryRepository;
 import io.wangler.artinaut.User;
 import io.wangler.artinaut.UserRepository;
 import io.wangler.artinaut.security.PasswordEncoder;
 import jakarta.inject.Singleton;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -47,19 +51,27 @@ public class DefaultUserService implements UserService {
   private final GroupRepository groupRepository;
   private final PasswordEncoder passwordEncoder;
   private final UserMapper userMapper;
+  private final RepositoryRepository repositoryRepository;
 
   private CharSequence adminPassword;
+
+  public static final String ADMIN_PASSWD_NOT_SET = "-1";
 
   public DefaultUserService(
       UserRepository userRepository,
       GroupRepository groupRepository,
       PasswordEncoder passwordEncoder,
       UserMapper userMapper,
-      @Property(name = "artinaut.test.admin.password") CharSequence adminPassword) {
+      RepositoryRepository repositoryRepository,
+      @Property(
+              name = "artinaut.test.admin.password",
+              defaultValue = DefaultUserService.ADMIN_PASSWD_NOT_SET)
+          CharSequence adminPassword) {
     this.userRepository = userRepository;
     this.groupRepository = groupRepository;
     this.passwordEncoder = passwordEncoder;
     this.userMapper = userMapper;
+    this.repositoryRepository = repositoryRepository;
     this.adminPassword = adminPassword;
   }
 
@@ -88,7 +100,7 @@ public class DefaultUserService implements UserService {
             .findByName(Group.ADMIN_ROLE_NAME)
             .orElseThrow(() -> new NotFoundException("group", Group.ADMIN_ROLE_NAME));
 
-    if (this.adminPassword == null) {
+    if (this.adminPassword == null || ADMIN_PASSWD_NOT_SET.equals(this.adminPassword)) {
       this.adminPassword = UUID.randomUUID().toString();
     }
 
@@ -104,5 +116,45 @@ public class DefaultUserService implements UserService {
   @ReadOnly
   public Optional<UserDto> findUser(String username) {
     return userRepository.findByName(username).map(userMapper::toUserDto);
+  }
+
+  @Override
+  @ReadOnly
+  public boolean canAccess(String repoKey, Authentication authentication) {
+    Optional<Repository> potentialRepo = repositoryRepository.findByKey(repoKey);
+    Optional<User> potentialUser = userRepository.findByName(authentication.getName());
+
+    if (potentialRepo.isEmpty()) {
+      log.warn("No such repository with key «{}»", repoKey);
+      return false;
+    }
+
+    if (potentialUser.isEmpty()) {
+      log.warn("No such repository with key «{}»", repoKey);
+      return false;
+    }
+
+    Repository repository = potentialRepo.get();
+    User user = potentialUser.get();
+
+    if (repository.getGroups().isEmpty()) {
+      log.warn("Repository «{}» has no groups assigned", repoKey);
+      return false;
+    }
+
+    List<String> groups =
+        repository.getGroups().stream()
+            .map(Group::getName)
+            .filter(
+                groupName -> user.getGroups().stream().anyMatch(g -> groupName.equals(g.getName())))
+            .toList();
+
+    log.debug(
+        "User «{}» and repo «{}» have the following groups in common «{}»",
+        authentication.getName(),
+        repoKey,
+        groups);
+
+    return groups.size() > 0;
   }
 }

@@ -11,4 +11,7 @@ DELETE
 FROM virtual_repository;
 
 DELETE
+FROM repository_groups;
+
+DELETE
 FROM repository;

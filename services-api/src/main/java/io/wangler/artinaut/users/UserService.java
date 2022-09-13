@@ -23,6 +23,7 @@
  */
 package io.wangler.artinaut.users;
 
+import io.micronaut.security.authentication.Authentication;
 import java.util.Optional;
 
 public interface UserService {
@@ -60,4 +61,6 @@ public interface UserService {
    * @return potential user
    */
   Optional<UserDto> findUser(String username);
+
+  boolean canAccess(String repoKey, Authentication authentication);
 }

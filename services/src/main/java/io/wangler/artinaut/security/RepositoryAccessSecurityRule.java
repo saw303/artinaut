@@ -30,8 +30,11 @@ import io.micronaut.security.rules.ConfigurationInterceptUrlMapRule;
 import io.micronaut.security.rules.SecurityRuleResult;
 import io.micronaut.security.token.RolesFinder;
 import io.micronaut.web.router.RouteMatch;
+import io.wangler.artinaut.users.UserService;
 import jakarta.inject.Singleton;
+import java.util.Map;
 import org.reactivestreams.Publisher;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -44,9 +47,12 @@ import reactor.core.publisher.Mono;
 public class RepositoryAccessSecurityRule extends AbstractSecurityRule {
 
   public static final Integer ORDER = ConfigurationInterceptUrlMapRule.ORDER - 1;
+  private static final String REPO_KEY = "repoKey";
+  private final UserService userService;
 
-  public RepositoryAccessSecurityRule(RolesFinder rolesFinder) {
+  public RepositoryAccessSecurityRule(RolesFinder rolesFinder, UserService userService) {
     super(rolesFinder);
+    this.userService = userService;
   }
 
   @Override
@@ -61,13 +67,23 @@ public class RepositoryAccessSecurityRule extends AbstractSecurityRule {
       return Mono.just(SecurityRuleResult.REJECTED);
     }
 
-    // TODO implement the business logic here in a non blocking manner.
-    /*
-    1. Load the repo & the current user
-    2. Verify if the repo is assigned one of the users groups.
-    */
+    Map<String, Object> variableValues = routeMatch.getVariableValues();
 
-    return Mono.just(SecurityRuleResult.REJECTED);
+    if (!variableValues.containsKey(REPO_KEY)) {
+      return Mono.just(SecurityRuleResult.REJECTED);
+    }
+
+    final String repoKey = (String) variableValues.get(REPO_KEY);
+
+    return Flux.create(
+        emitter -> {
+          if (userService.canAccess(repoKey, authentication)) {
+            emitter.next(SecurityRuleResult.ALLOWED);
+          } else {
+            emitter.next(SecurityRuleResult.REJECTED);
+          }
+          emitter.complete();
+        });
   }
 
   @Override

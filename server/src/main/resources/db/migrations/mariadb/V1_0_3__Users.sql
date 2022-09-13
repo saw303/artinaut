@@ -37,6 +37,13 @@ CREATE TABLE user (
 )
     ENGINE = InnoDB;
 
+CREATE TABLE `repository_groups` (
+    repository_id UUID NOT NULL,
+    `groups_id` UUID NOT NULL,
+    PRIMARY KEY (repository_id, `groups_id`)
+)
+    ENGINE = InnoDB;
+
 ALTER TABLE `user_groups`
 ADD CONSTRAINT UK_jrc4ri7j11xq29b6p2unbmn5n UNIQUE (`groups_id`);
 
@@ -72,6 +79,16 @@ ADD CONSTRAINT FK7v3il552anu8tomrxxt1jw1p4
     FOREIGN KEY (`group_id`)
         REFERENCES `group`(id);
 
+ALTER TABLE `repository_groups`
+ADD CONSTRAINT FK3yuovyafvji0h7072rrfuygjv
+    FOREIGN KEY (`groups_id`)
+        REFERENCES `group`(id);
+
+ALTER TABLE `repository_groups`
+ADD CONSTRAINT FK8kj36fspn8k6swbovsduqgend
+    FOREIGN KEY (repository_id)
+        REFERENCES repository(id);
+
 SET @adminRoleId = (SELECT UUID());
 SET @adminName = (SELECT 'ADMIN');
 
@@ -85,3 +102,8 @@ VALUES (@adminGroupId, 0, @adminName);
 
 INSERT INTO group_roles(group_id, roles_id)
 VALUES (@adminGroupId, @adminRoleId);
+
+INSERT INTO repository_groups(repository_id, groups_id)
+SELECT r.id, @adminGroupId
+FROM repository r;
+
