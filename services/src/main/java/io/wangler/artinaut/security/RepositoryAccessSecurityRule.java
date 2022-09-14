@@ -33,6 +33,7 @@ import io.micronaut.web.router.RouteMatch;
 import io.wangler.artinaut.users.UserService;
 import jakarta.inject.Singleton;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -44,6 +45,7 @@ import reactor.core.publisher.Mono;
  * @since 0.2.0
  */
 @Singleton
+@Slf4j
 public class RepositoryAccessSecurityRule extends AbstractSecurityRule {
 
   public static final Integer ORDER = ConfigurationInterceptUrlMapRule.ORDER - 1;
@@ -64,6 +66,7 @@ public class RepositoryAccessSecurityRule extends AbstractSecurityRule {
     }
 
     if (authentication == null) {
+      log.info("Unauthenticated request {} {}", request.getMethodName(), request.getPath());
       return Mono.just(SecurityRuleResult.REJECTED);
     }
 
