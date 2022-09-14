@@ -53,3 +53,6 @@ artinaut:
       iteration-count: 65536
       key-length: 128
       salt: "@rtIn@ut"
+  http:
+    read-timeout: 30s
+    max-content-length: 52428800 # 1024 * 1024 * 50 MB

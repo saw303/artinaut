@@ -45,6 +45,7 @@ import io.wangler.artinaut.RemoteRepository;
 import io.wangler.artinaut.RemoteRepositoryRepository;
 import io.wangler.artinaut.Repository;
 import io.wangler.artinaut.config.FileStoreConfig;
+import io.wangler.artinaut.config.HttpClientConfig;
 import jakarta.inject.Singleton;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -70,17 +71,23 @@ public class RemoteArtifactResolver extends BaseArtifactResolver implements Arti
   private final HttpClientConfiguration httpClientConfiguration =
       new DefaultHttpClientConfiguration();
 
+  private final HttpClientConfig httpClientConfig;
+
   public RemoteArtifactResolver(
       ArtifactRepository artifactRepository,
       FileStoreConfig fileStoreConfig,
       RemoteRepositoryRepository remoteRepositoryRepository,
-      ArtifactMapper artifactMapper) {
+      ArtifactMapper artifactMapper,
+      HttpClientConfig httpClientConfig) {
     super(artifactRepository, fileStoreConfig);
     this.remoteRepositoryRepository = remoteRepositoryRepository;
     this.fileStoreConfig = fileStoreConfig;
     this.artifactMapper = artifactMapper;
     this.artifactRepository = artifactRepository;
-    this.httpClientConfiguration.setMaxContentLength(1024 * 1024 * 50); // 50 MiB
+    this.httpClientConfig = httpClientConfig;
+    this.httpClientConfiguration.setMaxContentLength(httpClientConfig.getMaxContentLength());
+    this.httpClientConfiguration.setReadTimeout(httpClientConfig.getReadTimeout());
+    this.httpClientConfiguration.setConnectTimeout(httpClientConfig.getConnectTimeout());
   }
 
   @Override
