@@ -12,6 +12,7 @@
     <logger name="io.micronaut.http.client" level="DEBUG"/>
     <logger name="org.flywaydb" level="INFO"/>
     <logger name="io.wangler.artinaut" level="INFO"/>
+    <logger name="io.micronaut.security" level="WARN"/>
 
     <root level="ERROR">
         <appender-ref ref="STDOUT" />
