@@ -2,7 +2,6 @@ plugins {
     id "com.github.johnrengelman.shadow" version "7.1.2" apply false
     id "io.micronaut.application" version "${micronautGradlePluginVersion}" apply false
     id "io.micronaut.library" version "${micronautGradlePluginVersion}" apply false
-    id 'ch.onstructive.gradle.java' version "${onstructiveGradlePluginVersion}" apply false
     id 'ch.onstructive.gradle.release' version "${onstructiveGradlePluginVersion}" apply false
     id 'ch.onstructive.gradle.codestyle' version "${onstructiveGradlePluginVersion}" apply false
     id 'ch.onstructive.gradle.hbm2ddl' version "${onstructiveGradlePluginVersion}" apply false
@@ -10,16 +9,11 @@ plugins {
 
 subprojects { subproject ->
 
-    apply plugin: 'ch.onstructive.gradle.java'
+    apply plugin: 'groovy'
     apply plugin: 'ch.onstructive.gradle.release'
     apply plugin: 'ch.onstructive.gradle.codestyle'
 
     group = "io.wangler.artinaut"
-
-    java {
-        sourceCompatibility = JavaVersion.toVersion("17")
-        targetCompatibility = JavaVersion.toVersion("17")
-    }
 
     if (subproject.name == "${rootProject.name}-server") {
         apply plugin: 'io.micronaut.application'
@@ -34,6 +28,11 @@ subprojects { subproject ->
             incremental(true)
             annotations("io.wangler.artinaut.*")
         }
+    }
+
+    java {
+        sourceCompatibility = JavaVersion.toVersion("17")
+        targetCompatibility = JavaVersion.toVersion("17")
     }
 
     dependencies {

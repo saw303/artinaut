@@ -1,9 +1,11 @@
 version: "3.9"
 services:
   artinaut:
-    image: ghcr.io/saw303/artinaut/artinaut:0.1.6-native
+    image: ghcr.io/saw303/artinaut/artinaut:0.1.8-native
     environment:
       DB_HOST: database
+    ports:
+      - "127.0.0.1:8080:8080"
   database:
     image: mariadb:10.9.3-jammy
     environment:
