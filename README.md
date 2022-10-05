@@ -4,7 +4,9 @@ Artinaut is a tiny and fast Maven repository manager based on the popular Micron
 
 Software made in 🇨🇭
 
+![GitHub Action status](https://github.com/saw303/artinaut/actions/workflows/build.yml/badge.svg)
 ![GitHub Action status](https://github.com/saw303/artinaut/actions/workflows/release.yml/badge.svg)
+![GitHub Action status](https://github.com/saw303/artinaut/actions/workflows/release-native.yml/badge.svg)
 
 ## What's that name?
 
