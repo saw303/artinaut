@@ -36,7 +36,6 @@ jpa:
 flyway:
   datasources:
     default:
-      locations: classpath:db/migrations/mariadb
       baseline-on-migrate: true
       baseline-version: "1"
 
