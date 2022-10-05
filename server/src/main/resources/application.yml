@@ -45,6 +45,12 @@ netty:
     allocator:
       max-order: 3
 
+endpoints:
+  all:
+    path: /endpoints
+  health:
+    enabled: true
+
 artinaut:
   file-store:
     path: "${ARTINAUT_FILESTORE:/Users/saw/dev/private/artinaut/build}"

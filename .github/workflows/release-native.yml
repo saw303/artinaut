@@ -1,0 +1,79 @@
+name: Release Docker GraalVM Image
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    env:
+      ORG_GRADLE_PROJECT_onstructiveUsername: ${{ secrets.M2_USER }}
+      ORG_GRADLE_PROJECT_onstructivePassword: ${{ secrets.M2_PWD }}
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: '0'
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@master
+      with:
+        platforms: linux/amd64
+
+    - name: Set up Docker Buildx
+      id: buildx
+      uses: docker/setup-buildx-action@master
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: '18'
+        distribution: 'zulu'
+
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v2
+
+    - name: Validate Gradle Wrapper
+      uses: gradle/wrapper-validation-action@v1
+
+    - name: Build with Gradle
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: -s check :artinaut-server:buildNativeLayersTask :artinaut-server:dockerPrepareContext -x spotlessInternalRegisterDependencies -x spotlessJava -x spotlessJavaCheck -x spotlessCheck
+
+    - name: Store integration test results
+      uses: actions/upload-artifact@v2
+      if: failure()
+      with:
+        name: integration-test-report
+        path: ${{ github.workspace }}/server/build/test-results/test/
+        retention-days: 2
+
+    - name: Store integration test db logs
+      uses: actions/upload-artifact@v2
+      if: failure()
+      with:
+        name: integration-db-logs
+        path: ${{ github.workspace }}/server/create*.log
+        retention-days: 2
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build multiplatform Docker image
+      uses: docker/build-push-action@v2
+      with:
+        builder: ${{ steps.buildx.outputs.name }}
+        context: ${{ github.workspace }}/server/build/docker/native-main
+        file: ${{ github.workspace }}/server/build/docker/native-main/DockerfileNative
+        platforms: linux/amd64
+        push: true
+        tags: ghcr.io/saw303/artinaut/artinaut:${{ github.ref_name }}-native
