@@ -2,7 +2,9 @@
 
 Artinaut is a tiny and fast Maven repository manager based on the popular Micronaut framework. It allows you to define local, remote and virtual repositories and can act as an internal Maven repository proxy within your organisation.
 
-![example workflow](https://github.com/saw303/artinaut/actions/workflows/release.yml/badge.svg)
+Software made in 🇨🇭
+
+![GitHub Action status](https://github.com/saw303/artinaut/actions/workflows/release.yml/badge.svg)
 
 ## What's that name?
 
@@ -23,7 +25,7 @@ Artinaut aims to solve these major problems and provide a small Java application
 - ✅ Support for virtual repositories (combine a collection of local or remote repositories and expose it as one repository)
 - ✅ Support for MariaDB 10.3+
 - ✅ Support for Group management
-- ⏸ Support for User management
+- ✅ Support for User management
 
 ### Release 0.2 🐣 - Do first steps
 
@@ -78,4 +80,13 @@ Run `docker compose up -d` to start Artinaut. Afterwards the application is runn
 - Maven Central ➡️ https://repo.maven.apache.org/maven2
 - Gradle Plugins ➡️ https://plugins.gradle.org/m2
 
+## Admin password
+
+When Artinaut starts the first time, it creates an initial user called `admin`. The password of this user can be found in the logs. Run `docker compose logs -f artinaut` and you will find the password.
+
+```
+20:47:23.362 [main] INFO  i.w.a.users.DefaultUserService - Generated password for user «admin» is «9434d630-c762-4737-9514-c8ad9b2f0986»
+```
+
+Make sure you store the password in a password manager. The password is only shown at the first start. Passwords are stored as a encoded hash in the database and there is no change of reverse engineer it once it has been encoded.
 

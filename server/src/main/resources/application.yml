@@ -45,6 +45,12 @@ netty:
     allocator:
       max-order: 3
 
+endpoints:
+  all:
+    path: /endpoints
+  health:
+    enabled: true
+
 artinaut:
   file-store:
     path: "${ARTINAUT_FILESTORE:/Users/saw/dev/private/artinaut/build}"
@@ -53,3 +59,6 @@ artinaut:
       iteration-count: 65536
       key-length: 128
       salt: "@rtIn@ut"
+  http:
+    read-timeout: 30s
+    max-content-length: 52428800 # 1024 * 1024 * 50 MB
