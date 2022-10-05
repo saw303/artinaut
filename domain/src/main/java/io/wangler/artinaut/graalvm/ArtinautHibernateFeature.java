@@ -28,6 +28,7 @@ import com.oracle.svm.core.annotate.AutomaticFeature;
 import io.micronaut.core.graal.AutomaticFeatureUtils;
 import io.wangler.artinaut.hibernate.JpaImplicitNamingStrategy;
 import io.wangler.artinaut.hibernate.JpaPhysicalNamingStrategy;
+import io.wangler.artinaut.hibernate.MariaDB107Dialect;
 import io.wangler.artinaut.hibernate.UuidUserType;
 import org.graalvm.nativeimage.hosted.Feature;
 import org.hibernate.persister.collection.BasicCollectionPersister;
@@ -52,6 +53,9 @@ final class ArtinautHibernateFeature implements Feature {
         access, JpaImplicitNamingStrategy.class.getCanonicalName());
     AutomaticFeatureUtils.registerClassForRuntimeReflectionAndReflectiveInstantiation(
         access, JpaPhysicalNamingStrategy.class.getCanonicalName());
+
+    AutomaticFeatureUtils.registerClassForRuntimeReflectionAndReflectiveInstantiation(
+        access, MariaDB107Dialect.class.getCanonicalName());
 
     AutomaticFeatureUtils.registerClassForRuntimeReflectionAndReflectiveInstantiation(
         access, UuidUserType.class.getCanonicalName());
