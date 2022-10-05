@@ -31,7 +31,6 @@ application {
 }
 
 tasks.named("dockerfile") {
-    baseImage = "azul/zulu-openjdk-alpine:17-jre-headless"
     instruction """RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*"""
     instruction """HEALTHCHECK --start-period=3s --interval=5s CMD curl -s localhost:8080/endpoints/health | grep '"status":"UP"' """
 }
