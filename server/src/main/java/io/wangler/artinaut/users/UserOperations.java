@@ -63,7 +63,6 @@ public interface UserOperations {
   @Introspected
   record UserPostModel(
       @NotBlank String name, @NotBlank String password, @NotEmpty Set<String> groups) {}
-  ;
 
   @Introspected
   record UserPutModel(@NotBlank String password, @NotEmpty Set<String> groups) {}
