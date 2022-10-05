@@ -1,12 +1,9 @@
 name: Build
 
 on:
-  push:
-    branches:
-      - '*'
+  push: ['*']
   pull_request:
-    branches:
-      - '*'
+    types: [opened]
 
 jobs:
   build:
