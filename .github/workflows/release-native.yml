@@ -47,6 +47,9 @@ jobs:
       with:
         arguments: -s check :artinaut-server:buildNativeLayersTask :artinaut-server:dockerPrepareContext -x spotlessInternalRegisterDependencies -x spotlessJava -x spotlessJavaCheck -x spotlessCheck
 
+    - name: Overwrite native Dockerfile
+      run: cp ${{ github.workspace }}/server/DockerfileNative ${{ github.workspace }}/server/build/docker/native-main
+
     - name: Store integration test results
       uses: actions/upload-artifact@v2
       if: failure()
@@ -76,6 +79,6 @@ jobs:
         builder: ${{ steps.buildx.outputs.name }}
         context: ${{ github.workspace }}/server/build/docker/native-main
         file: ${{ github.workspace }}/server/build/docker/native-main/DockerfileNative
-        platforms: linux/amd64
+        platforms: linux/amd64,linux/arm64
         push: true
         tags: ghcr.io/saw303/artinaut/artinaut:${{ github.ref_name }}-native

@@ -1,0 +1,16 @@
+FROM ghcr.io/graalvm/native-image:22.3.0 AS graalvm
+WORKDIR /home/app
+COPY layers/libs /home/app/libs
+COPY layers/classes /home/app/classes
+COPY layers/resources /home/app/resources
+COPY layers/application.jar /home/app/application.jar
+RUN mkdir /home/app/config-dirs
+COPY config-dirs/generateResourcesConfigFile /home/app/config-dirs/generateResourcesConfigFile
+RUN native-image -cp /home/app/libs/*.jar:/home/app/resources:/home/app/application.jar --no-fallback -H:Name=application -J--add-exports=org.graalvm.nativeimage.builder/com.oracle.svm.core.jdk=ALL-UNNAMED -J--add-exports=org.graalvm.nativeimage.builder/com.oracle.svm.core.configure=ALL-UNNAMED -J--add-exports=org.graalvm.sdk/org.graalvm.nativeimage.impl=ALL-UNNAMED -H:ConfigurationFileDirectories=/home/app/config-dirs/generateResourcesConfigFile -H:Class=io.wangler.artinaut.Application
+FROM pingcap/alpine-glibc:alpine-3.14.6
+RUN apk --no-cache update && apk add libstdc++
+EXPOSE 8080
+RUN apk --no-cache add curl
+HEALTHCHECK --start-period=2s --interval=5s CMD curl -s localhost:8080/endpoints/health | grep '"status":"UP"'
+COPY --from=graalvm /home/app/application /app/application
+ENTRYPOINT ["/app/application"]
