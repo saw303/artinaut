@@ -41,7 +41,7 @@ The following `docker-compose.yml` will help you to setup Artinaut as a Docker C
 version: "3.9"
 services:
   database:
-    image: mariadb:10.8.3-jammy
+    image: mariadb:10.9.4-jammy
     environment:
       MYSQL_ROOT_PASSWORD: root_secret
       MYSQL_DATABASE: artinaut
@@ -49,6 +49,8 @@ services:
       MYSQL_PASSWORD: secret
       TZ: "Europe/Zurich"
       MARIADB_AUTO_UPGRADE: "true"
+      LANG: "C.UTF-8"
+      LC_ALL: "C.UTF-8"
     volumes:
       - ./dockervolumes/artinaut-db:/var/lib/mysql
     ports:
@@ -60,7 +62,7 @@ services:
           memory: 200M
 
   artinaut:
-    image: ghcr.io/saw303/artinaut/artinaut:0.1.2
+    image: ghcr.io/saw303/artinaut/artinaut:0.1.8
     environment:
       DB_HOST: database
       DB_NAME: artinaut
