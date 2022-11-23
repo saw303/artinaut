@@ -1,6 +1,6 @@
 datasources:
   default:
-    url: jdbc:tc:mariadb:10.8.3-jammy:///db
+    url: jdbc:tc:mariadb:10.9.4-jammy:///db
     driverClassName: org.testcontainers.jdbc.ContainerDatabaseDriver
 
 jpa:
