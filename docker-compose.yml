@@ -7,7 +7,7 @@ services:
     ports:
       - "127.0.0.1:8080:8080"
   database:
-    image: mariadb:10.9.3-jammy
+    image: mariadb:10.9.4-jammy
     environment:
       MYSQL_ROOT_PASSWORD: root_secret
       MYSQL_DATABASE: artinaut
