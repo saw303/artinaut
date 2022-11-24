@@ -37,5 +37,6 @@ tasks.named("dockerfile") {
 }
 
 tasks.named("dockerfileNative") {
-    baseImage('gcr.io/distroless/cc-debian10')
+    instruction """RUN apk --no-cache add curl"""
+    instruction """HEALTHCHECK --start-period=2s --interval=5s CMD curl -s localhost:8080/endpoints/health | grep '"status":"UP"' """
 }
