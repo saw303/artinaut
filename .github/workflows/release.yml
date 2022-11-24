@@ -76,6 +76,6 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           context: ${{ github.workspace }}/server/build/docker/main
           file: ${{ github.workspace }}/server/build/docker/main/Dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/aarch64
           push: true
           tags: ghcr.io/saw303/artinaut/artinaut:${{ github.ref_name }}
