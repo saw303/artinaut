@@ -92,5 +92,5 @@ When Artinaut starts the first time, it creates an initial user called `admin`. 
 20:47:23.362 [main] INFO  i.w.a.users.DefaultUserService - Generated password for user «admin» is «9434d630-c762-4737-9514-c8ad9b2f0986»
 ```
 
-Make sure you store the password in a password manager. The password is only shown at the first start. Passwords are stored as a encoded hash in the database and there is no change of reverse engineer it once it has been encoded.
+Make sure you store the password in a password manager. The password is only shown at the first start. Passwords are stored as a encoded hash in the database and there is no chance to reverse engineer it once it has been encoded.
 
