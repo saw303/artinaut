@@ -1,13 +1,13 @@
 version: "3.9"
 services:
   artinaut:
-    image: ghcr.io/saw303/artinaut/artinaut:0.1.8-native
+    image: ghcr.io/saw303/artinaut/artinaut:0.1.14-native
     environment:
       DB_HOST: database
     ports:
       - "127.0.0.1:8080:8080"
   database:
-    image: mariadb:10.9.4-jammy
+    image: mariadb:10.10.2-jammy
     environment:
       MYSQL_ROOT_PASSWORD: root_secret
       MYSQL_DATABASE: artinaut
