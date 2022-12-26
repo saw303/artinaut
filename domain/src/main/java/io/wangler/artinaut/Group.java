@@ -46,7 +46,9 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class Group extends BaseEntity {
 
-  public static final String ADMIN_ROLE_NAME = "ADMIN";
+  public static final String ROLE_ADMIN_NAME = "ADMIN";
+  public static final String ROLE_READER_NAME = "READER";
+  public static final String ROLE_DEPLOYER_NAME = "DEPLOYER";
 
   @NotBlank
   @Column(length = 50, unique = true, nullable = false)
